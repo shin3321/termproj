@@ -16,6 +16,21 @@ class Character:
 
 
     def move(self): #fram = 8
+        '''
+        key = 1, up
+        key = 2, left
+        key = 3, down
+        key = 4, right
+        key = 5, space jump
+        key = 6, z attack
+        key = 7, x bomb
+        key = 8, s loop
+        key = 9, lshift  speed up
+        '''
+
+        pass
+
+    def attack(self):
         pass
 
     def draw(self):
@@ -24,18 +39,3 @@ class Character:
 
 character = Character(screen_width/2, screen_height/2)
 
-class NPC_snack:
-    def __init__(self):
-        self.x, self.y = random.randint(0, 400), random.randint(0, 400)
-        self.frame = 0
-        self.image = load_image('img/Snakes.png') #85,85
-        self.hp = 50
-
-
-    def update(self):
-        self.frame = (self.frame + 1) % 11
-        pass
-
-    def draw(self):
-        self.image.clip_draw(self.frame * 77, 263, 77, 77, self.x, self.y, 80, 80)
-        pass
