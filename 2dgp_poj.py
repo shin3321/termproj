@@ -1,10 +1,21 @@
 from pico2d import *
 import random
-
-from control_hero import handle_event
 from map import *
 from character import *
 from NPC import *
+
+
+def handle_event():
+    global running
+    global key
+    events = get_events()
+    for event in events:
+        if event.type == SDL_QUIT:
+            running = False
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
+            running = False
+        else:
+           character.handle_event(event)
 
 def reset_world():
     global running
@@ -16,8 +27,7 @@ def reset_world():
     world = []
 
     character = Character(200, 200)
-
-    npc_snake = [NPC_snack() for i in range(20)]
+    npc_snake = [NPC_snack() for i in range(5)]
     world += npc_snake
 
 
@@ -27,12 +37,14 @@ def update_world():
         o.update()
 
 
-
 def render_world():
+    clear_canvas()
     character.draw()
     for o in world:
         o.draw()
+    update_canvas()
     pass
+
 
 reset_world()
 
@@ -48,6 +60,7 @@ while running:
     draw_background(cx, cy)
     update_world()
     render_world()
-    pico2d.update_canvas()
+    #update_canvas()
+    delay(0.001)
 
-    pico2d.delay(0.01)
+close_canvas()

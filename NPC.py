@@ -3,7 +3,7 @@ import random
 
 class NPC_snack:
     def __init__(self):
-        self.x, self.y = random.randint(0, 400), random.randint(0, 400)
+        self.x, self.y = random.randint(0, 800), random.randint(0, 1200)
         self.frame = 0
         self.image = load_image('img/Snakes.png') #85,85
         self.hp = 50

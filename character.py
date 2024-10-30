@@ -2,28 +2,51 @@ from idlelib.config import IdleConf
 from pico2d import *
 import random
 from map import *
-from statemachine import StateMachine, space_down, time_out, D_down
+from statemachine import *
 
 
 class Idle:
     @staticmethod
     def enter(hero, e):
+        if a_up(e) or d_down(e) or start_event(e):
+            hero.face_dir = -1
+
+        elif d_up(e) or a_down(e):
+            hero.face_dir = 1
+
+        hero.action = 1
+        hero.frame = 0
+
+        hero.start_time = get_time()
         pass
     @staticmethod
     def exit(hero, e):
         pass
     @staticmethod
     def do(hero):
-        pass
+        hero.frame = (hero.frame + 1) % 1
+        if get_time() - hero.start_time > 5:
+            # 이벤트 발생
+            hero.state_machine.add_event(('TIME_OUT', 0))
+
     @staticmethod
     def draw(hero):
-        hero.image.clip_draw(0,1910, 125, 138, hero.x, hero.y, 100, 100)
+        if hero.face_dir == 1:
+            hero.image.clip_draw(0,1910, 125, 138, hero.x, hero.y, 100, 100)
+        elif hero.face_dir == -1:
+            hero.image.clip_composite_draw(0, 1910, 125, 138, 0, 'h', hero.x, hero.y, 100, 100)
 
-class RightWalk:
+class Walk:
     @staticmethod
     def enter(hero, e):
-        if D_down(e):
-            hero.dir, hero.action = 1, 1
+        if d_down(e) or a_up(e):
+            hero.dir = 1
+
+        if a_down(e) or d_up(e):
+            hero.dir = -1
+
+        hero.action = 1
+
     @staticmethod
     def exit(hero, e):
         pass
@@ -33,10 +56,14 @@ class RightWalk:
         hero.x += hero.dir * 5
     @staticmethod
     def draw(hero):
-        hero.image.clip_draw(125 * hero.frame,1910,
+        if hero.dir == 1:
+            hero.image.clip_draw(125 * hero.frame,1910,
                              125, 138, hero.x, hero.y, 100, 100)
 
-class LeftWalk:
+        if hero.dir == -1:
+            hero.image.clip_composite_draw(125 * hero.frame,1910,
+                             125, 138, 0,'h', hero.x, hero.y, 100, 100)
+class Run:
     @staticmethod
     def enter(hero, e):
         pass
@@ -77,12 +104,13 @@ class Character:
         self.hp = 100
         self.image = load_image('img/hero.png')#125,138
         self.state_machine = StateMachine(self)
-        self.state_machine.start(Sleep)
+        self.state_machine.start(Idle)
         self.state_machine.set_transitions(
             {
-                Sleep : {space_down : Idle},
-                Idle : {time_out : Sleep},
-                RightWalk : {D_down : Idle, D_down : Sleep}
+                Sleep : {space_down : Idle, d_down : Walk, d_up : Walk},
+                Idle : {time_out : Sleep,
+                        d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk},
+                Walk : {d_down : Idle, d_up : Idle, a_down : Idle, a_up : Idle}
 
 
             }
@@ -97,20 +125,7 @@ class Character:
             ('INPUT', event)
         )
 
-    def move(self): #fr bam = 8
-        '''
-        key = 1, up
-        key = 2, left
-        key = 3, down
-        key = 4, right
-        key = 5, space jump
-        key = 6, z attack
-        key = 7, x bomb
-        key = 8, s loop
-        key = 9, lshift  speed up
-        '''
 
-        pass
 
     def attack(self):
         pass
