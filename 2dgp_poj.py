@@ -26,7 +26,7 @@ def reset_world():
     running = True
     world = []
 
-    character = Character(200, 200)
+    character = Character(screen_width // 2, screen_height // 2)
     npc_snake = [NPC_snack() for i in range(5)]
     world += npc_snake
 

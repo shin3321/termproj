@@ -1,4 +1,4 @@
-from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDLK_s, SDLK_w
+from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDLK_s, SDLK_w, SDLK_LSHIFT
 
 
 def start_event(e):
@@ -45,6 +45,13 @@ def w_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_w)
 
+def lshift_down(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
+            and e[1].key == SDLK_LSHIFT)
+
+def lshift_up (e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
+            and e[1].key == SDLK_LSHIFT)
 
 class StateMachine:
     def __init__(self, o):

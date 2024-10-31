@@ -1,9 +1,11 @@
 from turtledemo.forest import symRandom
 
-from pico2d import get_time
+from pico2d import *
+from statemachine import *
+from map import *
 
-from statemachine import a_up, d_down, start_event, d_up, a_down, s_down
-
+center_x = screen_width/2
+center_y = screen_height/2
 
 class Idle:
     @staticmethod
@@ -65,22 +67,8 @@ class Walk:
             hero.image.clip_composite_draw(125 * hero.frame,1910,
                              125, 138, 0,'h', hero.x, hero.y, 100, 100)
 
-
 class Run:
-    @staticmethod
-    def enter(hero, e):
-        pass
-    @staticmethod
-    def exit(hero, e):
-        pass
-    @staticmethod
-    def do(hero):
-        hero.frame = (hero.frame + 1)%9
-    @staticmethod
-    def draw(hero):
-        hero.image.clip_compositie_draw(125 * hero.frame,1910,
-                             125, 138, hero.x, hero.y, 100, 100)
-
+    pass
 
 class Sleep:
     @staticmethod
@@ -102,9 +90,8 @@ class Sit:
     @staticmethod
     def enter(hero, e):
         if s_down(e):
-
-
-        pass
+            hero.action = 2
+            pass
 
     @staticmethod
     def exit(hero, e):
@@ -116,5 +103,9 @@ class Sit:
 
     @staticmethod
     def draw(hero):
-        hero.image.clip_draw(1130, 1910,
-                             125, 138, hero.x, hero.y, 100, 100)
+        if hero.face_dir == 1:
+            hero.image.clip_draw(250, 1775,
+                             145, 130, hero.x, hero.y-5, 100, 100)
+        elif hero.face_dir == -1:
+            hero.image.clip_composite_draw(250, 1775,
+                                 145, 130, 0, 'h', hero.x, hero.y-5, 100, 100)
