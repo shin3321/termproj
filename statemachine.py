@@ -24,13 +24,6 @@ def a_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_a)
 
-def z_down(e):
-    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
-            and e[1].key == SDLK_z)
-def z_up(e):
-    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
-            and e[1].key == SDLK_z)
-
 def s_down(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
             and e[1].key == SDLK_s)
@@ -52,6 +45,16 @@ def lshift_down(e):
 def lshift_up (e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_LSHIFT)
+
+#공격 모션
+def z_down(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
+            and e[1].key == SDLK_z)
+def z_up(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
+            and e[1].key == SDLK_z)
+
+
 
 class StateMachine:
     def __init__(self, o):
