@@ -1,3 +1,5 @@
+import game_world
+from Weapon import Bomb
 from character_move import *
 from map import *
 from statemachine import *
@@ -26,19 +28,20 @@ class Character:
                         },
                 Idle: {time_out : Sleep,
                        d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
-                       s_down: Sit
+                       s_down: Sit, x_down: Idle
                        },
                 Walk: {d_down : Idle, d_up : Idle, a_down : Idle, a_up : Idle,
                        s_down: Sit, s_up: Sit,
                        lshift_down: Run,
-                       z_up: WalkAttack
+                       x_down: Walk
                        },
                 Run: {lshift_up: Walk,
-                      z_up: RunAttack
+                      x_down: Run
                         },
-                Sit: {s_up: Idle },
-                WalkAttack: {time_out: Walk},
-                RunAttack: {time_out: Run}
+                Sit: {s_up: Idle, x_down: Sit},
+                Attack: {z_down: Attack}
+                #WalkAttack: {time_out: Walk},
+               # RunAttack: {time_out: Run}
 
             }
         )
@@ -56,6 +59,12 @@ class Character:
     def draw(self):
         self.state_machine.draw(self)
         draw_rectangle(self.x-64,self.y-64,self.x+64,self.y+64)
+
+    def bomb(self, vel):
+        print('bomb')
+        print(f'{self.x}{self.y}')
+        bomb = Bomb(self.x, self.y, self.face_dir * vel)
+        game_world.add_obj(bomb, 1)
 
 character = Character(screen_width/2, screen_height/2)
 

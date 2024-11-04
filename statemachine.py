@@ -1,4 +1,4 @@
-from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDLK_s, SDLK_w, SDLK_LSHIFT
+from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDLK_s, SDLK_w, SDLK_LSHIFT, SDLK_x
 
 
 def start_event(e):
@@ -53,6 +53,15 @@ def z_down(e):
 def z_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_z)
+
+def x_down(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
+            and e[1].key == SDLK_x)
+def x_up(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
+            and e[1].key == SDLK_x)
+
+
 
 
 

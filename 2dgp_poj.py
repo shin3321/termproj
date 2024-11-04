@@ -1,5 +1,7 @@
 from pico2d import *
 import random
+
+import game_world
 from map import *
 from character import *
 from NPC import *
@@ -20,28 +22,24 @@ def handle_event():
 def reset_world():
     global running
     global character
-    global npc_snake
-    global world
 
     running = True
-    world = []
 
     character = Character(screen_width // 2, screen_height // 2)
-    npc_snake = [NPC_snack() for i in range(5)]
-    world += npc_snake
+
+    npc_snake = NPC_snack()
+    game_world.add_obj(npc_snake, 0)
 
 
 def update_world():
     character.update()
-    for o in world:
-        o.update()
+    game_world.update()
 
 
 def render_world():
     clear_canvas()
     character.draw()
-    for o in world:
-        o.draw()
+    game_world.render()
     update_canvas()
     pass
 
