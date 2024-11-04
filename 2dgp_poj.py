@@ -28,7 +28,9 @@ def reset_world():
     character = Character(screen_width // 2, screen_height // 2)
 
     npc_snake = NPC_snack()
-    game_world.add_obj(npc_snake, 0)
+    npc_bat = NPC_bat()
+    game_world.add_obj(npc_snake, 1)
+    game_world.add_obj(npc_bat, 1)
 
 
 def update_world():

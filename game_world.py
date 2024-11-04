@@ -1,3 +1,5 @@
+from NPC import NPC_bat
+
 world = [[], []]
 
 def add_obj(o, depth):
@@ -7,7 +9,10 @@ def add_obj(o, depth):
 def update():
     for layer in world:
         for o in layer:
-            o.update()
+            if isinstance(o, NPC_bat):
+                o.update(player.x, player.y)  # player 위치 전달
+            else:
+                o.update()
 
 
 def render():

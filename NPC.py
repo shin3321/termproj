@@ -19,19 +19,22 @@ class NPC_snack:
 
 class NPC_bat:
     def __init__(self):
-        self.x, self.y = random.randint(0, 400), random.randint(0, 400)
+        print('bat')
+        self.x, self.y = random.randint(0, 1200), random.randint(0, 800)
         self.frame = 0
-        self.image = load_image('img/Snakes.png') #85,85
+        self.image = load_image('img/bat.png') #85,85
         self.hp = 50
 
 
-    def update(self):
-        self.frame = (self.frame + 1) % 11
+    def update(self, p_x, p_y):
+        self.frame = (self.frame + 1) % 1
         pass
 
     def draw(self):
-        self.image.clip_draw(self.frame * 77, 263, 77, 77, self.x, self.y, 80, 80)
+        self.image.clip_draw(self.frame * 15, 0, 15, 15, self.x, self.y, 65, 65)
         pass
+
+
 
 class NPC_snail:
     def __init__(self):
