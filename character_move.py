@@ -60,7 +60,7 @@ class Walk:
     @staticmethod
     def do(hero):
         hero.frame = (hero.frame + 1) % 9
-        hero.x += hero.dir * 5
+        hero.x += hero.dir * 3
     @staticmethod
     def draw(hero):
         if hero.dir == 1:

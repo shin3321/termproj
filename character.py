@@ -9,8 +9,7 @@ center_y = screen_height/2
 
 class Character:
     def __init__(self, x, y):
-        self.x = x
-        self. y = y
+        self.x, self.y = x, y
         self.frame = 0
         self.action = 1
         self.hp = 100
@@ -61,12 +60,10 @@ class Character:
         draw_rectangle(self.x-64,self.y-64,self.x+64,self.y+64)
 
     def bomb(self, vel):
-        print('bomb')
-        print(f'{self.x}{self.y}')
         bomb = Bomb(self.x, self.y, self.face_dir * vel)
         game_world.add_obj(bomb, 1)
 
-character = Character(screen_width/2, screen_height/2)
+
 
 class Whip:
     def __init__(self):

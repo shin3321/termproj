@@ -2,10 +2,12 @@ from pico2d import *
 import random
 
 import game_world
+from character import Character
 from map import *
-from character import *
 from NPC import *
 
+center_x = screen_width/2
+center_y = screen_height/2
 
 def handle_event():
     global running
@@ -26,21 +28,22 @@ def reset_world():
     running = True
 
     character = Character(screen_width // 2, screen_height // 2)
-
     npc_snake = NPC_snack()
     npc_bat = NPC_bat()
-    game_world.add_obj(npc_snake, 1)
-    game_world.add_obj(npc_bat, 1)
+
+    game_world.add_obj(character, 0)
+    game_world.add_obj(npc_snake, 0)
+    game_world.add_obj(npc_bat, 0)
 
 
 def update_world():
-    character.update()
-    game_world.update()
+    #character.update()
+    game_world.update(character.x, character.y)
 
 
 def render_world():
     clear_canvas()
-    character.draw()
+    #character.draw()
     game_world.render()
     update_canvas()
     pass
@@ -51,13 +54,12 @@ reset_world()
 while running:
     handle_event()
 
-    cx = character.x - screen_width //2
-    cy = character.y - screen_height//2
-
-    cx = max(0, min(cx, world_width - screen_width))
-    cy = max(0, min(cy, world_height - screen_height))
-
-    draw_background(cx, cy)
+    # cx = character.x - screen_width //2
+    # cy = character.y - screen_height//2
+    #
+    # cx = max(0, min(cx, world_width - screen_width))
+    # cy = max(0, min(cy, world_height - screen_height))
+    # draw_background(cx, cy)
     update_world()
     render_world()
     #update_canvas()
