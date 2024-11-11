@@ -29,9 +29,9 @@ class Bomb: #(1, 6)
         if get_time() - self.start_time > 2:
             self.frame = (self.frame + 2) % 3
 
-        if get_time() - self.start_time > 3 :
+        if get_time() - self.start_time > 5 :
             game_world.remove_obj(self)
-            print(f'폭탄 {self}을 지워')
+
 
 
 

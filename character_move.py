@@ -1,8 +1,16 @@
 from turtledemo.forest import symRandom
 
 from pico2d import *
+
+import game_framework
 from statemachine import *
-from map import *
+from background import *
+
+PIXEL_PER_METER = (10.0 / 0.2)  # 10 pixel 20 cm
+RUN_SPEED_KMPH = 0.01  # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
 img_size = 128
 
@@ -60,7 +68,7 @@ class Walk:
     @staticmethod
     def do(hero):
         hero.frame = (hero.frame + 1) % 9
-        hero.x += hero.dir * 3
+        hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
     @staticmethod
     def draw(hero):
         if hero.dir == 1:
@@ -71,16 +79,16 @@ class Walk:
             hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
-class Run:
-    @staticmethod
-    def enter(hero, e):
-        if (d_down(e) or a_up(e)) and lshift_down(e):
-            hero.dir = 1
-
-        if (a_down(e) or d_up(e)) and lshift_down(e):
-            hero.dir = -1
-
-        hero.action = 1
+# class Run:
+#     @staticmethod
+#     def enter(hero, e):
+#         if (d_down(e) or a_up(e)) and lshift_down(e):
+#             hero.dir = 1
+#
+#         if (a_down(e) or d_up(e)) and lshift_down(e):
+#             hero.dir = -1
+#
+#         hero.action = 1
 
     @staticmethod
     def exit(hero, e):

@@ -1,15 +1,12 @@
 import game_world
 from Weapon import Bomb
 from character_move import *
-from map import *
+from background import *
 from statemachine import *
-
-center_x = screen_width/2
-center_y = screen_height/2
+import server
 
 class Character:
-    def __init__(self, x, y):
-        self.x, self.y = x, y
+    def __init__(self):
         self.frame = 0
         self.action = 1
         self.hp = 100
@@ -19,6 +16,9 @@ class Character:
         self.image = load_image('img/hero.png')#125,138
         self.state_machine = StateMachine(self)
         self.state_machine.start(Idle)
+        self.x = server.background.w // 2
+        self.y = server.background.h // 2
+        self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
         self.state_machine.set_transitions(
             {
                 Sleep: {space_down : Idle,
@@ -31,12 +31,12 @@ class Character:
                        },
                 Walk: {d_down : Idle, d_up : Idle, a_down : Idle, a_up : Idle,
                        s_down: Sit, s_up: Sit,
-                       lshift_down: Run,
+                       # lshift_down: Run,
                        x_down: Walk
                        },
-                Run: {lshift_up: Walk,
-                      x_down: Run
-                        },
+                # Run: {lshift_up: Walk,
+                #       x_down: Run
+                #         },
                 Sit: {s_up: Idle, x_down: Sit},
                 Attack: {z_down: Attack}
                 #WalkAttack: {time_out: Walk},
@@ -56,8 +56,9 @@ class Character:
 
 
     def draw(self):
-        self.state_machine.draw(self)
         draw_rectangle(self.x-64,self.y-64,self.x+64,self.y+64)
+        self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
+        self.state_machine.draw(self)
 
     def bomb(self, vel):
         bomb = Bomb(self.x, self.y, self.face_dir * vel)

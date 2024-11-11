@@ -32,3 +32,5 @@ def remove_obj(o):
         print(f'     CRITICAL: 존재하지 않은 객체{o}를 지우려고 합니다.')
 
 
+def clear():
+    pass
