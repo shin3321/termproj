@@ -15,7 +15,7 @@ class Character:
         self.frame_update_time =0
         self.image = load_image('img/hero.png')#125,138
         self.state_machine = StateMachine(self)
-        self.state_machine.start(Idle)
+        self.state_machine.start([Idle])
         self.x = server.background.w // 2
         self.y = server.background.h // 2
         self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
@@ -27,18 +27,23 @@ class Character:
                         },
                 Idle: {time_out : Sleep,
                        d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
-                       s_down: Sit, x_down: Idle
+                       s_down: Sit, x_down: Idle,
+                       z_down: Attack
                        },
                 Walk: {d_down : Idle, d_up : Idle, a_down : Idle, a_up : Idle,
                        s_down: Sit, s_up: Sit,
                        # lshift_down: Run,
-                       x_down: Walk
+                       x_down: Walk,
+                       z_down: Attack
                        },
                 # Run: {lshift_up: Walk,
                 #       x_down: Run
                 #         },
                 Sit: {s_up: Idle, x_down: Sit},
-                Attack: {z_down: Attack}
+                Attack: {z_down: Attack,
+                         time_out: Idle,
+                         d_down: Walk, d_up: Walk, a_down: Walk, a_up: Walk
+                         }
                 #WalkAttack: {time_out: Walk},
                # RunAttack: {time_out: Run}
 

@@ -61,7 +61,14 @@ def x_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_x)
 
+def space_down(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
+            and e[1].key == SDLK_SPACE)
 
+
+def space_up(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
+            and e[1].key == SDLK_SPACE)
 
 
 
@@ -69,6 +76,7 @@ class StateMachine:
     def __init__(self, o):
         self.o = o
         self.event_que = []
+        self.active_states = set()
 
     def add_event(self, e):
         self.event_que.append(e)
@@ -77,23 +85,30 @@ class StateMachine:
         self.transitions = transitions
 
     def update(self):
-        self.cur_state.do(self.o)
+        for state in self.active_states:
+            state.do(self.o)
+
         if self.event_que:
             e = self.event_que.pop(0)
-            for check_event, next_state in self.transitions[self.cur_state].items():
-                if check_event(e):
-                    self.cur_state.exit(self.o, e)
-                    print(f'    exit from{self.cur_state}')
-                    self.cur_state = next_state
-                    self.cur_state.enter(self.o, e)
-                    print(f'    enter into {self.cur_state}')
-                    return
+            for state in list(self.active_states):
+                for check_event, next_state in self.transitions[state].items():
+                    if check_event(e):
+                        state.exit(self.o, e)
+                        print(f'    exit from{state}')
+                        self.active_states.discard(state)
+
+                        self.active_states.add(next_state)
+                        next_state.enter(self.o, e)
+                        print(f'    enter into {next_state}')
+                        break
 
 
-    def start(self, start_state):
-        self.cur_state = start_state
-        self.cur_state.enter(self.o, ('START', 0))  # 더미 이벤트
-        print(f'    enter into {self.cur_state}')
+    def start(self, start_states):
+        for state in start_states:
+            self.active_states.add(state)
+            state.enter(self.o, ('START', 0))  # 더미 이벤트
+            print(f'    enter into {state}')
 
     def draw(self, o):
-        self.cur_state.draw(self.o)
+        for state in self.active_states:
+            state.draw(self.o)

@@ -7,7 +7,7 @@ from statemachine import *
 from background import *
 
 PIXEL_PER_METER = (10.0 / 0.2)  # 10 pixel 20 cm
-RUN_SPEED_KMPH = 0.01  # Km / Hour
+RUN_SPEED_KMPH = 0.1  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -79,35 +79,35 @@ class Walk:
             hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
-# class Run:
-#     @staticmethod
-#     def enter(hero, e):
-#         if (d_down(e) or a_up(e)) and lshift_down(e):
-#             hero.dir = 1
-#
-#         if (a_down(e) or d_up(e)) and lshift_down(e):
-#             hero.dir = -1
-#
-#         hero.action = 1
+class Jump:
+    @staticmethod
+    def enter(hero, e):
+        if (d_down(e) or a_up(e)) and space_down(e):
+            hero.dir = 1
+
+        if (a_down(e) or d_up(e)) and space_down(e):
+            hero.dir = -1
+
+        hero.action = 1
 
     @staticmethod
     def exit(hero, e):
+        if x_down(e):
+            hero.bomb(3.5)
         pass
-
     @staticmethod
     def do(hero):
         hero.frame = (hero.frame + 1) % 9
-        hero.x += hero.dir * 15
-
+        hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
     @staticmethod
     def draw(hero):
         if hero.dir == 1:
-            hero.image.clip_draw(img_size * hero.frame, img_size*15,
-                                 img_size, img_size, hero.x, hero.y, 100, 100)
+            hero.image.clip_draw(img_size * hero.frame,img_size*15,
+                             img_size, img_size, hero.x, hero.y, 100, 100)
 
         if hero.dir == -1:
-            hero.image.clip_composite_draw(img_size * hero.frame, img_size*15,
-                                           img_size, img_size, 0, 'h', hero.x, hero.y, 100, 100)
+            hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
+                             img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
 
 class Sleep:
@@ -172,7 +172,7 @@ class Attack:   #(4, 5, 8frame)
         if current_time - hero.frame_update_time >= 0.1:  # 속도를 조절하려면 0.1초 조정
             hero.frame = (hero.frame + 1) % 8
             hero.frame_update_time = current_time
-        hero.x += hero.dir*5
+
         if get_time() - hero.start_time > 1.5:
             hero.state_machine.add_event(('TIME_OUT', 0))
 
@@ -211,12 +211,12 @@ class Attack:   #(4, 5, 8frame)
 #         if get_time() - hero.start_time > 1.5:
 #             # 이벤트 발생
 #             hero.state_machine.add_event(('TIME_OUT', 0))
-
-    @staticmethod
-    def draw(hero):
-        if hero.face_dir == 1:
-            hero.image.clip_draw(img_size*hero.frame, img_size*11,
-                                 img_size, img_size, hero.x, hero.y, 100, 100)
-        elif hero.face_dir == -1:
-            hero.image.clip_composite_draw(img_size*hero.frame, img_size*11,
-                                           img_size, img_size, 0, 'h', hero.x, hero.y - 5, 100, 100)
+#
+#     @staticmethod
+#     def draw(hero):
+#         if hero.face_dir == 1:
+#             hero.image.clip_draw(img_size*hero.frame, img_size*11,
+#                                  img_size, img_size, hero.x, hero.y, 100, 100)
+#         elif hero.face_dir == -1:
+#             hero.image.clip_composite_draw(img_size*hero.frame, img_size*11,
+#                                            img_size, img_size, 0, 'h', hero.x, hero.y - 5, 100, 100)

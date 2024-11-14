@@ -1,6 +1,7 @@
 from idlelib.debugger_r import frametable
 
 from pico2d import *
+from sdl2.examples.gfxdrawing import draw_circles
 
 import game_world
 
@@ -14,7 +15,7 @@ class Bomb: #(1, 6)
             self.image = load_image('img/items.png')
         self.x, self.y = x, y
         self.velocity_x = velocity * 2
-        self.velocity_y = velocity
+        self.velocity_y = abs(velocity)
         self.frame = 0
         self.start_time = get_time()
 
