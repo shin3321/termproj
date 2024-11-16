@@ -85,12 +85,14 @@ class StateMachine:
         self.transitions = transitions
 
     def update(self):
+
         for state in self.active_states:
             state.do(self.o)
 
         if self.event_que:
-            e = self.event_que.pop(0)
+
             for state in list(self.active_states):
+                e = self.event_que.pop(0)
                 for check_event, next_state in self.transitions[state].items():
                     if check_event(e):
                         state.exit(self.o, e)

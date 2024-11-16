@@ -13,6 +13,9 @@ class Character:
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time =0
+        self.jump_velocity = 10
+        self.jump_height = 10
+        self.gravity = -1
         self.image = load_image('img/hero.png')#125,138
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
@@ -28,13 +31,15 @@ class Character:
                 Idle: {time_out : Sleep,
                        d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
                        s_down: Sit, x_down: Idle,
-                       z_down: Attack
+                       z_down: Attack,
+                       space_down: Jump
                        },
                 Walk: {d_down : Idle, d_up : Idle, a_down : Idle, a_up : Idle,
                        s_down: Sit, s_up: Sit,
                        # lshift_down: Run,
                        x_down: Walk,
-                       z_down: Attack
+                       z_down: Attack,
+                       space_down: Jump
                        },
                 # Run: {lshift_up: Walk,
                 #       x_down: Run
@@ -43,9 +48,12 @@ class Character:
                 Attack: {z_down: Attack,
                          time_out: Idle,
                          d_down: Walk, d_up: Walk, a_down: Walk, a_up: Walk
-                         }
-                #WalkAttack: {time_out: Walk},
-               # RunAttack: {time_out: Run}
+                         },
+                Jump: { d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
+                       s_down: Sit, x_down: Jump,
+                       z_down: Attack,
+                        space_down: Jump}
+
 
             }
         )
