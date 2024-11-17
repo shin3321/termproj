@@ -7,6 +7,52 @@ import game_world
 
 img_size = 128
 
+
+class Whip:
+    def __init__(self, x, y, face_dir):
+        self.image = load_image('img/hero.png') #12, 3, 6
+        self.x, self.y = x, y-23
+        self.frame = 11
+        self.start_time = get_time()
+        self.frame_update_time = 0
+        self.face_dir = face_dir
+
+    def update(self):
+        current_time = get_time()
+        if current_time - self.frame_update_time >= 0.40:
+            self.frame_update_time = current_time
+
+            if self.frame < 16:
+                self.frame += 1
+            else:
+                self.frame = 10
+
+        if get_time() - self.start_time > 1.2:
+            game_world.remove_obj(self)
+
+
+    def draw(self):
+        if self.frame >= 10 and self.frame <= 13 and self.face_dir == 1:
+            self.image.clip_draw(img_size * self.frame, img_size * 3,
+                             img_size, img_size, self.x-5, self.y, 70, 70)
+        elif self.frame >= 14 and self.face_dir == 1:
+            self.image.clip_draw(img_size * self.frame, img_size * 3,
+                                 img_size, img_size, self.x+46, self.y, 70, 70)
+
+        if self.frame >= 10 and self.frame <= 13 and self.face_dir == -1:
+            self.image.clip_composite_draw(img_size * self.frame, img_size * 3,
+                             img_size, img_size,  0, 'h', self.x+10, self.y, 70, 70)
+        elif self.frame >= 14 and self.face_dir == -1:
+            self.image.clip_composite_draw(img_size * self.frame, img_size * 3,
+                                 img_size, img_size, 0, 'h', self.x-35, self.y, 70, 70)
+
+
+    def clear(self):
+        game_world.remove_obj(self)
+        pass
+
+
+
 class Bomb: #(1, 6)
     image = None
     gravity = -0.1

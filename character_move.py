@@ -37,7 +37,7 @@ class Idle:
     @staticmethod
     def do(hero):
         hero.frame = (hero.frame + 1) % 1
-        if get_time() - hero.start_time > 5:
+        if get_time() - hero.start_time > 60:
             # 이벤트 발생
             hero.state_machine.add_event(('TIME_OUT', 0))
 
@@ -160,20 +160,23 @@ class Attack:   #(4, 5, 8frame)
             hero.dir = 2
             hero.frame_update_time = 0
             hero.start_time = get_time()
+            hero.create_whip()
             pass
 
     @staticmethod
     def exit(hero, e):
+        hero.whip.clear()
         pass
 
     @staticmethod
     def do(hero):
         current_time = pico2d.get_time()
         if current_time - hero.frame_update_time >= 0.1:  # 속도를 조절하려면 0.1초 조정
-            hero.frame = (hero.frame + 1) % 8
+
+            hero.frame = (hero.frame + 1) % 7
             hero.frame_update_time = current_time
 
-        if get_time() - hero.start_time > 1.5:
+        if get_time() - hero.start_time > 1.2:
             hero.state_machine.add_event(('TIME_OUT', 0))
 
     @staticmethod
@@ -181,9 +184,57 @@ class Attack:   #(4, 5, 8frame)
         if hero.face_dir == 1:
             hero.image.clip_draw(img_size * hero.frame, img_size * 11,
                                  img_size, img_size, hero.x, hero.y, 100, 100)
+
         elif hero.face_dir == -1:
             hero.image.clip_composite_draw(img_size * hero.frame, img_size * 11,
                                            img_size, img_size, 0, 'h', hero.x, hero.y - 5, 100, 100)
+
+class Attacked:
+    @staticmethod
+    def enter(hero, e):
+        hero.frame = 0
+        hero.start_time = get_time()
+        pass
+
+    @staticmethod
+    def exit(hero, e):
+
+        pass
+
+    @staticmethod
+    def do(hero):
+        current_time = get_time()
+        if current_time - hero.frame_update_time >= 0.10:
+            hero.frame_update_time = current_time
+            hero.frame = hero.frame % 4 +1
+            print(f'{hero.frame}')
+
+            if get_time() - hero.start_time > 1.2:
+                hero.frame = 4
+
+        if hero.is_invincible:
+            hero.image_alpha = 128 if int(get_time() * 10) % 2 == 0 else 255
+            hero.bounce_back()
+
+        hero.invincible_time -= pico2d.get_time() - hero.last_time
+        if hero.invincible_time <= 0:
+            hero.is_invincible = False
+            hero.image_alpha = 255
+            hero.state_machine.add_event(('TIME_OUT', 0))
+
+        hero.last_time = pico2d.get_time()
+
+    @staticmethod
+    def draw(hero):
+        hero.image.opacify(hero.image_alpha / 255.0)
+        if hero.frame < 4:
+            hero.image.clip_draw(img_size * hero.frame, img_size * 14,
+                                 img_size, img_size, hero.x, hero.y, 100, 100)
+        elif hero.frame == 4:
+            hero.frame = 9
+            hero.image.clip_draw(img_size * hero.frame, img_size * 15,
+                                 img_size, img_size, hero.x, hero.y, 100, 100)
+        hero.image.opacify(1.0)
 
 #
 # class WalkAttack:

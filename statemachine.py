@@ -70,6 +70,9 @@ def space_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_SPACE)
 
+def changeHp(e):
+    return e[0] == 'CHANGE'
+
 
 
 class StateMachine:
@@ -85,7 +88,6 @@ class StateMachine:
         self.transitions = transitions
 
     def update(self):
-
         for state in self.active_states:
             state.do(self.o)
 
