@@ -43,19 +43,23 @@ def init():
     game_world.add_objects(npc_snakes, 0)
     for npc_snake in npc_snakes:
         game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
+        game_world.add_collision_pair('whip:npc_snake', None, npc_snake)
     game_world.add_collision_pair('hero:npc_snake', server.hero, None)
 
-    npc_bats = [NPC_bat(random.randint(100, 1600-100), 60) for _ in range(10)]
-    game_world.add_objects(npc_bats, 0)
-    for npc_bat in npc_bats:
-        game_world.add_collision_pair('hero:npc_bat', None, npc_bat)
-    game_world.add_collision_pair('hero:npc_bat', server.hero, None)
-
-    npc_snails = [NPC_snail(random.randint(100, 1600 - 100), 60) for _ in range(10)]
-    game_world.add_objects(npc_snails, 0)
-    for npc_snail in npc_bats:
-        game_world.add_collision_pair('hero:npc_snail', None, npc_snail)
-    game_world.add_collision_pair('hero:npc_snail', server.hero, None)
+    # npc_bats = [NPC_bat(random.randint(100, 1600-100), 60) for _ in range(10)]
+    # game_world.add_objects(npc_bats, 0)
+    # for npc_bat in npc_bats:
+    #     game_world.add_collision_pair('hero:npc_bat', None, npc_bat)
+    #     game_world.add_collision_pair('whip,npc_snake', None, npc_bat)
+    # game_world.add_collision_pair('hero:npc_bat', server.hero, None)
+    #
+    # npc_snails = [NPC_snail(random.randint(100, 1600 - 100), 60) for _ in range(10)]
+    # game_world.add_objects(npc_snails, 0)
+    #
+    # for npc_snail in npc_snails:
+    #     game_world.add_collision_pair('hero:npc_snail', None, npc_snail)
+    #     game_world.add_collision_pair('whip,npc_snake', None, npc_snail)
+    # game_world.add_collision_pair('hero:npc_snail', server.hero, None)
 
 
 def finish():
@@ -67,6 +71,7 @@ def handle_collisions():
         for a in pairs[0]:
             for b in pairs[1]:
                 if game_world.collide(a, b):
+                    print(f'{group}')
                     a.handle_collision(group, b)
                     b.handle_collision(group, a)
 

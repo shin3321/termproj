@@ -7,7 +7,7 @@ from server import hero
 
 class NPC_snake:
     def __init__(self, x = 400, y = 60 ):
-        self.x, self.y = random.randint(0, 800), random.randint(0, 1200)
+        self.x, self.y = x, y
         self.i_x = 79
         self.i_y = 87
         self.frame = 0
@@ -26,12 +26,12 @@ class NPC_snake:
         pass
 
     def get_bb(self):
-        # fill here
-        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
+        return self.x - 20, self.y - 20, self.x + 20, self.y + 20
         pass
 
     def handle_collision(self, group, other):
-
+        if group == 'whip:npc_snake':
+            game_world.remove_obj(self)
         pass
 
 class NPC_bat:

@@ -32,6 +32,7 @@ class Whip:
 
 
     def draw(self):
+        draw_rectangle(*self.get_bb())
         if self.frame >= 10 and self.frame <= 13 and self.face_dir == 1:
             self.image.clip_draw(img_size * self.frame, img_size * 3,
                              img_size, img_size, self.x-5, self.y, 70, 70)
@@ -51,6 +52,15 @@ class Whip:
         game_world.remove_obj(self)
         pass
 
+    def get_bb(self):
+        if self.frame >= 10 and self.frame <= 13 :
+            return self.x - 20, self.y - 20, self.x+20, self.y+20
+        elif self.frame >=14:
+            return self.x - 20, self.y - 20, self.x+70, self.y+20
+        pass
+
+    def handle_collision(self, group, other):
+        pass
 
 
 class Bomb: #(1, 6)

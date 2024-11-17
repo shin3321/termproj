@@ -1,4 +1,5 @@
 import game_world
+from NPC import NPC_snake
 from Weapon import Bomb, Whip
 from character_move import *
 from background import *
@@ -21,7 +22,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = server.background.h // 2
+        self.y = 60
         self.invincible_time = 0
         self.image_alpha = 255
         self.is_invincible = False
@@ -87,7 +88,7 @@ class Character:
 
     def get_bb(self):
         # fill here
-        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
+        return self.x - 20, self.y - 20, self.x + 20, self.y + 20
         pass
 
     def handle_collision(self, group, other):
@@ -114,6 +115,11 @@ class Character:
     def create_whip(self):
         self.whip = Whip(self.x, self.y, self.face_dir) #12, 3, 6
         game_world.add_obj(self.whip, 0)
+
+        for npc_snake in game_world.world[0]:
+            if isinstance(npc_snake, NPC_snake):
+                game_world.add_collision_pair('whip:npc_snake', self.whip, npc_snake)
+
 
 
 

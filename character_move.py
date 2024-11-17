@@ -235,39 +235,3 @@ class Attacked:
             hero.image.clip_draw(img_size * hero.frame, img_size * 15,
                                  img_size, img_size, hero.x, hero.y, 100, 100)
         hero.image.opacify(1.0)
-
-#
-# class WalkAttack:
-#     @staticmethod
-#     def enter(hero, e):
-#         if z_down(e):
-#             hero.dir = 1
-#             hero.frame = 4
-#             hero.frame_update_time = 0
-#             hero.start_time = get_time()
-#             pass
-#
-#     @staticmethod
-#     def exit(hero, e):
-#         pass
-#
-#     @staticmethod
-#     def do(hero):
-#         current_time = pico2d.get_time()
-#         if current_time - hero.frame_update_time >= 0.1:
-#             hero.frame = (hero.frame + 1) % 8
-#             hero.frame_update_time = current_time
-#         hero.x += hero.dir * 5
-#
-#         if get_time() - hero.start_time > 1.5:
-#             # 이벤트 발생
-#             hero.state_machine.add_event(('TIME_OUT', 0))
-#
-#     @staticmethod
-#     def draw(hero):
-#         if hero.face_dir == 1:
-#             hero.image.clip_draw(img_size*hero.frame, img_size*11,
-#                                  img_size, img_size, hero.x, hero.y, 100, 100)
-#         elif hero.face_dir == -1:
-#             hero.image.clip_composite_draw(img_size*hero.frame, img_size*11,
-#                                            img_size, img_size, 0, 'h', hero.x, hero.y - 5, 100, 100)
