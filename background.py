@@ -37,9 +37,9 @@ class Background():
 
 
     def draw(self):
-        for x in range(0, self.cw, self.w):  # 캔버스 너비만큼 반복
-            for y in range(0, self.ch, self.h):  # 캔버스 높이만큼 반복
-                self.image.draw_to_origin(x, y)  # 이미지 원본 크기로 그리기
+        for x in range(0, self.cw, self.w):
+            for y in range(0, self.ch, self.h):
+                self.image.draw_to_origin(x, y)
 
     def update(self):
         self.window_left = clamp(0, int(server.hero.x) - self.cw // 2, self.w - self.cw - 1)
@@ -48,7 +48,6 @@ class Background():
 
 
     def clear(self):
-
         pass
 
 # class TileBackGround:

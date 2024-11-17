@@ -1,9 +1,13 @@
 from pico2d import *
 import random
 
+import game_framework
 import game_world
 from server import hero
 
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 11
 
 class NPC_snake:
     def __init__(self, x = 400, y = 60 ):
@@ -11,18 +15,42 @@ class NPC_snake:
         self.i_x = 79
         self.i_y = 87
         self.frame = 0
+        self.speed = 0.5
+        self.move_x = 1
         self.action = 3
         self.image = load_image('img/Snakes.png') #85,85
         self.hp = 50
-
+        self.dir = 1
+        self.range = 25
+        self.min_x = self.x - self.range  # 최소 x 좌표
+        self.max_x = self.x + self.range  # 최대 x 좌표
 
     def update(self):
-        self.frame = (self.frame + 1) % 11
+
+        self.frame = (
+                (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11)
+
+        # x 좌표 자동 이동
+        self.x += self.speed * self.dir
+
+        # 경계 확인 및 방향 전환
+        if self.x <= self.min_x:  # 최소 경계
+            self.x = self.min_x
+            self.dir = 1  # 오른쪽으로 방향 전환
+        elif self.x >= self.max_x:  # 최대 경계
+            self.x = self.max_x
+            self.dir = -1
+
         pass
 
     def draw(self):
-        self.image.clip_draw(self.frame * self.i_x , self.action * self.i_y , self.i_x , self.i_y , self.x, self.y, 80, 80)
         draw_rectangle(*self.get_bb())
+        if self.dir == 1:
+            self.image.clip_draw(int(self.frame) * self.i_x , self.action * self.i_y ,
+                                 self.i_x , self.i_y , self.x, self.y, 80, 80)
+        elif self.dir == -1:
+            self.image.clip_composite_draw(int(self.frame) * self.i_x, self.action * self.i_y,
+                                 self.i_x, self.i_y, 0, 'h', self.x, self.y, 80, 80)
         pass
 
     def get_bb(self):

@@ -10,6 +10,8 @@ from NPC import *
 import server
 import random
 
+from stage import Block, Arrow
+
 center_x = screen_width/2
 center_y = screen_height/2
 
@@ -35,11 +37,18 @@ def init():
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
 
+    arrow = Arrow()
+    game_world.add_obj(arrow, 1)
+
+    server.block = Block()
+    game_world.add_obj(server.block, 0)
+    game_world.add_collision_pair('block:hero', None, hero)
+
     global npc_snake
     global npc_bat
     global npc_snail
 
-    npc_snakes = [NPC_snake(random.randint(100, 1600-100), 60) for _ in range(10)]
+    npc_snakes = [NPC_snake(random.randint(700, 1600-100), 60) for _ in range(10)]
     game_world.add_objects(npc_snakes, 0)
     for npc_snake in npc_snakes:
         game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
@@ -71,14 +80,13 @@ def handle_collisions():
         for a in pairs[0]:
             for b in pairs[1]:
                 if game_world.collide(a, b):
-                    print(f'{group}')
                     a.handle_collision(group, b)
                     b.handle_collision(group, a)
 
 def update():
     game_world.update(server.hero.x, server.hero.y)
     handle_collisions()
-    delay(0.02)
+    delay(0.01)
 
 
 def draw():

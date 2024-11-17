@@ -1,3 +1,4 @@
+import game_mode
 import game_world
 from NPC import NPC_snake
 from Weapon import Bomb, Whip
@@ -10,7 +11,7 @@ class Character:
     def __init__(self):
         self.frame = 0
         self.action = 1
-        self.hp = 5
+        self.hp = 1000
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time = 0
@@ -35,7 +36,7 @@ class Character:
                         d_down : Walk, d_up : Walk,
                         s_down: Sit
                         },
-                Idle: {time_out : Sleep,
+                Idle: {
                        d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
                        s_down: Sit, x_down: Idle,
                        z_down: Attack,
@@ -73,7 +74,14 @@ class Character:
 
 
     def update(self):
-        self.state_machine.update()
+        self.y += self.jump_velocity
+        self.jump_velocity += self.gravity
+
+        if self.y < server.block.height:  # 바닥 y 좌표
+            self.y = 60
+            self.jump_velocity = 0
+            self.is_jumping = False
+            self.state_machine.update()
 
     def handle_event(self, event):
         self.state_machine.add_event(
@@ -82,24 +90,31 @@ class Character:
 
 
     def draw(self):
-        draw_rectangle(self.x-64,self.y-64,self.x+64,self.y+64)
+        draw_rectangle(self.x - 30, self.y - 50, self.x + 30, self.y + 30)
         self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
         self.state_machine.draw(self)
 
     def get_bb(self):
         # fill here
-        return self.x - 20, self.y - 20, self.x + 20, self.y + 20
+        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
         pass
 
     def handle_collision(self, group, other):
         if group == 'hero:npc_snake' and not self.is_invincible:
-            self.hp -= 1
-            self.is_invincible = True
-            self.invincible_time = 5.0
-            self.image_alpha = 128
-            self.bounce_count = 3
-            self.state_machine.add_event(('CHANGE', 0))
-        pass
+            if self.hp > 1:
+                self.hp -= 1
+                self.is_invincible = True
+                self.invincible_time = 2.0
+                self.image_alpha = 128
+                self.bounce_count = 3
+                self.state_machine.add_event(('CHANGE', 0))
+            # elif self.hp < 1:
+            #     self.hp = 5
+            #     #초기 상태로
+            #     pass
+        if group == 'block:hero':
+
+            pass
 
     def bounce_back(self):
         if self.bounce_count > 0:

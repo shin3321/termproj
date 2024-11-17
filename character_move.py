@@ -44,10 +44,12 @@ class Idle:
     @staticmethod
     def draw(hero):
         if hero.face_dir == 1:
-            hero.image.clip_draw(0, img_size*15, img_size, img_size, hero.x, hero.y, 100, 100)
+            hero.image.clip_draw(0, img_size*15,
+                                 img_size, img_size, hero.x, hero.y, 100, 100)
 
         elif hero.face_dir == -1:
-            hero.image.clip_composite_draw(0, img_size*15, img_size, img_size, 0, 'h', hero.x, hero.y, 100, 100)
+            hero.image.clip_composite_draw(0, img_size*15,
+                                           img_size, img_size, 0, 'h', hero.x, hero.y, 100, 100)
 
 class Walk:
     @staticmethod
@@ -96,10 +98,10 @@ class Jump:
         hero.y += hero.jump_velocity  # 점프 중에 y위치가 바뀌어야 함
         hero.jump_velocity += hero.gravity  # 중력의 영향
 
-        if hero.y <= server.background.h // 2:  # 점프가 끝났을 때
-            hero.is_jumping = False
+        if hero.y <= server.block.y:
+            hero.y = server.block.y
             hero.jump_velocity = 0
-            hero.y = server.background.h // 2
+            hero.is_jumping = False
 
     @staticmethod
     def draw(hero):
@@ -111,6 +113,10 @@ class Jump:
             hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
+    @staticmethod
+    def check_collision(hero, group, other):
+        if group == 'block:hero':
+            hero.is_jumping = False
 
 class Sleep:
     @staticmethod
