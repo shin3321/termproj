@@ -23,13 +23,17 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = 60
+        self.y = server.block.height +50
+        self.vy = 0 #중력 받게 해서 항상 블록 위에 서 있게 하기
         self.invincible_time = 0
         self.image_alpha = 255
         self.is_invincible = False
         self.last_time = 0
         self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
         self.whip = None
+        self.is_jumping = False
+        self.is_moving = False
+        self.on_ground = False
         self.state_machine.set_transitions(
             {
                 Sleep: {space_down : Idle,
@@ -49,7 +53,9 @@ class Character:
                        x_down: Walk,
                        z_down: Attack,
                        space_down: Jump,
-                       changeHp: Attacked
+                       changeHp: Attacked,
+                       space_up: Walk,
+                       z_up: Walk
                        },
                 # Run: {lshift_up: Walk,
                 #       x_down: Run
@@ -57,15 +63,19 @@ class Character:
                 Sit: {s_up: Idle, x_down: Sit},
                 Attack: {z_down: Attack,
                          time_out: Idle,
-                         d_down: Walk, d_up: Walk, a_down: Walk, a_up: Walk,
-                         changeHp: Attacked
+                         d_down: Walk,  a_down: Walk,
+                         changeHp: Attacked,
                          },
-                Jump: { d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
-                       s_down: Sit, x_down: Jump,
+                Jump: {s_down: Sit, x_down: Jump,
                        z_down: Attack,
-                        space_down: Jump,
-                        changeHp: Attacked},
-                Attacked: {time_out: Idle
+                       space_down: Jump,
+                       changeHp: Attacked,
+                       d_down: Walk, a_down: Walk,
+                       walk: Walk, idle: Idle
+                        },
+                Attacked: {time_out: Idle,
+                           d_down: Attacked, d_up: Attacked, a_down: Attacked, a_up: Attacked,
+                           s_down: Attacked,
                 }
 
 
@@ -74,14 +84,20 @@ class Character:
 
 
     def update(self):
-        self.y += self.jump_velocity
-        self.jump_velocity += self.gravity
+        if self.on_ground == False:
+            self.velocity_y = 30
+            self.vy += self.gravity
+            self.y += self.vy * game_framework.frame_time
 
-        if self.y < server.block.height:  # 바닥 y 좌표
-            self.y = 60
-            self.jump_velocity = 0
-            self.is_jumping = False
+        elif self.on_ground == True:
+            self.velocity_y = 0
             self.state_machine.update()
+
+        # if self.y < server.block.height:  # 바닥 y 좌표
+        #     self.y = 60
+        #     self.jump_velocity = 0
+        #     self.is_jumping = False
+
 
     def handle_event(self, event):
         self.state_machine.add_event(
@@ -90,13 +106,13 @@ class Character:
 
 
     def draw(self):
-        draw_rectangle(self.x - 30, self.y - 50, self.x + 30, self.y + 30)
+        draw_rectangle(self.x - 30, self.y - 40, self.x + 30, self.y + 30)
         self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
         self.state_machine.draw(self)
 
     def get_bb(self):
         # fill here
-        return self.x - 30, self.y - 30, self.x + 30, self.y + 30
+        return self.x - 30, self.y - 40, self.x + 30, self.y + 30
         pass
 
     def handle_collision(self, group, other):
@@ -113,19 +129,23 @@ class Character:
             #     #초기 상태로
             #     pass
         if group == 'block:hero':
+            self.is_jumping = False
+            self.on_ground = True
 
             pass
 
     def bounce_back(self):
         if self.bounce_count > 0:
             self.x -= self.velocity_x
-            self.y += self.velocity_y
             self.velocity_y += self.gravity * self.velocity_y
+            self.y += self.velocity_y
             self.bounce_count -= 1
 
     def bomb(self, vel):
         bomb = Bomb(self.x, self.y, self.face_dir * vel)
         game_world.add_obj(bomb, 1)
+        game_world.add_collision_pair('bomb:npc_snake', bomb, None)
+        game_world.add_collision_pair('block:bomb', None, bomb)
 
     def create_whip(self):
         self.whip = Whip(self.x, self.y, self.face_dir) #12, 3, 6

@@ -10,7 +10,7 @@ from NPC import *
 import server
 import random
 
-from stage import Block, Arrow
+from stage import Block, Arrow, Block1
 
 center_x = screen_width/2
 center_y = screen_height/2
@@ -25,7 +25,7 @@ def handle_events():
             #game_framework.change_mode(title_mode)
             pass
         else:
-           server.hero.handle_event(event)
+            server.hero.handle_event(event)
 
 def init():
     global Running
@@ -34,15 +34,24 @@ def init():
     server.background = Background()
     game_world.add_obj(server.background, 0)
 
+    server.block = Block()
+    game_world.add_obj(server.block, 0)
+    game_world.add_collision_pair('block:hero', server.block, None)
+    game_world.add_collision_pair('block:bomb', server.block, None)
+
+
+    # w, h, xPos, yPos
+    block1 = Block1(500, 100, 400, 200)
+    game_world.add_obj(block1, 0)
+
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
+    game_world.add_collision_pair('hero:npc_snake', server.hero, None)
+    game_world.add_collision_pair('block:hero', None, server.hero)
 
     arrow = Arrow()
     game_world.add_obj(arrow, 1)
 
-    server.block = Block()
-    game_world.add_obj(server.block, 0)
-    game_world.add_collision_pair('block:hero', None, hero)
 
     global npc_snake
     global npc_bat
@@ -53,7 +62,9 @@ def init():
     for npc_snake in npc_snakes:
         game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
         game_world.add_collision_pair('whip:npc_snake', None, npc_snake)
-    game_world.add_collision_pair('hero:npc_snake', server.hero, None)
+        game_world.add_collision_pair('bomb:npc_snake', None, npc_snake)
+
+
 
     # npc_bats = [NPC_bat(random.randint(100, 1600-100), 60) for _ in range(10)]
     # game_world.add_objects(npc_bats, 0)

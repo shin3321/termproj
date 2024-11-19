@@ -1,3 +1,5 @@
+from pico2d import get_time
+
 import character
 from NPC import NPC_bat
 from character import Character
@@ -17,6 +19,7 @@ def update(player_x, player_y):
                 o.update(player_x, player_y)
             else:
                 o.update()
+    process_delete_queue()
 
 
 def render():
@@ -63,5 +66,18 @@ def remove_collision_object(o):
             pairs[1].remove(o)
 
 
+delete_queue = []
+
+def schedule_remove(obj, delay):
+    delete_time = get_time() + delay
+    delete_queue.append((obj, delete_time))
+
+def process_delete_queue():
+    current_time = get_time()
+    for obj, delete_time in delete_queue[:]:
+        if current_time >= delete_time:
+            if obj in world[0]:
+                remove_obj(obj)
+                delete_queue.remove((obj, delete_time))
 def clear():
     pass

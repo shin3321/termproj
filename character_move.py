@@ -17,14 +17,15 @@ img_size = 128
 class Idle:
     @staticmethod
     def enter(hero, e):
-        if a_up(e) or d_down(e):
+        if a_up(e) or d_down(e) :
             hero.face_dir = -1
 
-        elif d_up(e) or a_down(e)or start_event(e):
+        elif d_up(e) or a_down(e) or start_event(e):
             hero.face_dir = 1
 
         hero.action = 1
         hero.frame = 0
+        hero.is_moving = False
 
         hero.start_time = get_time()
         pass
@@ -61,6 +62,7 @@ class Walk:
             hero.dir = -1
 
         hero.action = 1
+        hero.is_moving = True
 
     @staticmethod
     def exit(hero, e):
@@ -85,23 +87,36 @@ class Walk:
 class Jump:
     @staticmethod
     def enter(hero, e):
-        if space_down(e):  # 스페이스키를 눌러서 점프 시작
-            hero.jump_velocity = 10
+        hero.jump_velocity = 10
+        hero.is_jumping = True
+        if space_down(e):
+            pass
+        if d_down(e):
+            hero.dir = 1
+        if a_down(e):
+            hero.dir = -1
+
 
     @staticmethod
     def exit(hero, e):
         if x_down(e):
             hero.bomb(3.5)
+        hero.is_jumping = False
+
         pass
     @staticmethod
     def do(hero):
-        hero.y += hero.jump_velocity  # 점프 중에 y위치가 바뀌어야 함
-        hero.jump_velocity += hero.gravity  # 중력의 영향
+        hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
+        hero.y += hero.jump_velocity
+        hero.jump_velocity += hero.gravity
 
-        if hero.y <= server.block.y:
-            hero.y = server.block.y
+        if hero.y <= server.block.height + 25:
+            hero.on_ground = True
             hero.jump_velocity = 0
-            hero.is_jumping = False
+            if hero.is_moving != False:  # 이동 중이면 Walk 상태
+                hero.state_machine.add_event(('WALK', 0))
+            else:  # 정지 상태면 Idle 상태
+                hero.state_machine.add_event(('IDLE', 0))
 
     @staticmethod
     def draw(hero):
@@ -113,10 +128,6 @@ class Jump:
             hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
-    @staticmethod
-    def check_collision(hero, group, other):
-        if group == 'block:hero':
-            hero.is_jumping = False
 
 class Sleep:
     @staticmethod
@@ -138,6 +149,7 @@ class Sit:
     @staticmethod
     def enter(hero, e):
          hero.action = 2
+         hero.is_moving = False
 
     @staticmethod
     def exit(hero, e):
@@ -161,12 +173,15 @@ class Sit:
 class Attack:   #(4, 5, 8frame)
     @staticmethod
     def enter(hero, e):
-        if z_down(e):
-            hero.frame = 4
-            hero.dir = 2
-            hero.frame_update_time = 0
-            hero.start_time = get_time()
-            hero.create_whip()
+        hero.frame_update_time = 0
+        hero.start_time = get_time()
+        hero.create_whip()
+        hero.frame = 4
+        if z_down(e) and a_down(e):
+            hero.dir = -1
+
+        if z_down(e) and d_down(e):
+            hero.dir = 1
             pass
 
     @staticmethod
@@ -200,6 +215,7 @@ class Attacked:
     def enter(hero, e):
         hero.frame = 0
         hero.start_time = get_time()
+        hero.is_moving = False
         pass
 
     @staticmethod
@@ -213,7 +229,6 @@ class Attacked:
         if current_time - hero.frame_update_time >= 0.10:
             hero.frame_update_time = current_time
             hero.frame = hero.frame % 4 +1
-            print(f'{hero.frame}')
 
             if get_time() - hero.start_time > 1.2:
                 hero.frame = 4

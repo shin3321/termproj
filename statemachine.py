@@ -4,6 +4,12 @@ from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDL
 def start_event(e):
     return e[0] == 'START'
 
+def walk(e):
+    return e[0] == 'WALK'
+
+def idle(e):
+    return e[0] == 'IDLE'
+
 def space_down(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
             and e[1].key == SDLK_SPACE)

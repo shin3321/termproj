@@ -59,7 +59,9 @@ class NPC_snake:
 
     def handle_collision(self, group, other):
         if group == 'whip:npc_snake':
-            game_world.remove_obj(self)
+            if self in game_world.world[0]:
+                game_world.remove_obj(self)
+
         pass
 
 class NPC_bat:
