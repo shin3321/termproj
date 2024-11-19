@@ -58,6 +58,13 @@ class NPC_snake:
         pass
 
     def handle_collision(self, group, other):
+        if group == 'hero:snake':
+            other.hp -= 1
+            other.is_invincible = True
+            other.invincible_time = 2.0
+            other.image_alpha = 128
+            other.bounce_count = 3
+            other.state_machine.add_event(('CHANGE', 0))
         if group == 'whip:npc_snake':
             if self in game_world.world[0]:
                 game_world.remove_obj(self)

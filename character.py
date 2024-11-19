@@ -1,3 +1,5 @@
+from idlelib.configdialog import font_sample_text
+
 import game_mode
 import game_world
 from NPC import NPC_snake
@@ -15,11 +17,12 @@ class Character:
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time = 0
-        self.jump_velocity = 10
-        self.jump_height = 10
+        self.jump_velocity = 50
+        self.jump_height = 20
         self.gravity = -1
         self.velocity_x, self.velocity_y = 30, 30
         self.image = load_image('img/hero.png')#125,138
+        self.font = load_font('ENCR10B.TTF', 16)
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
@@ -41,7 +44,7 @@ class Character:
                         s_down: Sit
                         },
                 Idle: {
-                       d_down : Walk, d_up : Walk, a_down : Walk, a_up : Walk,
+                       d_down : Walk,  a_down : Walk, a_up : Walk, d_up : Walk,
                        s_down: Sit, x_down: Idle,
                        z_down: Attack,
                        space_down: Jump,
@@ -71,11 +74,10 @@ class Character:
                        space_down: Jump,
                        changeHp: Attacked,
                        d_down: Walk, a_down: Walk,
+                       d_up: Idle, a_up: Idle,
                        walk: Walk, idle: Idle
                         },
-                Attacked: {time_out: Idle,
-                           d_down: Attacked, d_up: Attacked, a_down: Attacked, a_up: Attacked,
-                           s_down: Attacked,
+                Attacked: {time_out: Idle
                 }
 
 
@@ -100,12 +102,11 @@ class Character:
 
 
     def handle_event(self, event):
-        self.state_machine.add_event(
-            ('INPUT', event)
-        )
+        self.state_machine.add_event( ('INPUT', event) )
 
 
     def draw(self):
+        self.font.draw(self.x + 50, self.y + 50, f'{self.hp:02d}', (255, 255, 0))
         draw_rectangle(self.x - 30, self.y - 40, self.x + 30, self.y + 30)
         self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
         self.state_machine.draw(self)
@@ -122,7 +123,7 @@ class Character:
                 self.is_invincible = True
                 self.invincible_time = 2.0
                 self.image_alpha = 128
-                self.bounce_count = 3
+                self.bounce_count = 5
                 self.state_machine.add_event(('CHANGE', 0))
             # elif self.hp < 1:
             #     self.hp = 5
@@ -131,6 +132,15 @@ class Character:
         if group == 'block:hero':
             self.is_jumping = False
             self.on_ground = True
+
+        if group == 'block1:hero':
+            print(f'{group}')
+            self.is_jumping = False
+            self.on_ground = True
+            self.y = other.yPos + other.height
+
+        if group == 'ladder:hero':
+            self.state_machine.add_event(('ladder', 0))
 
             pass
 

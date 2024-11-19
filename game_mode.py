@@ -10,7 +10,7 @@ from NPC import *
 import server
 import random
 
-from stage import Block, Arrow, Block1
+from stage import Block, Arrow, Block1, Ladder
 
 center_x = screen_width/2
 center_y = screen_height/2
@@ -41,13 +41,20 @@ def init():
 
 
     # w, h, xPos, yPos
-    block1 = Block1(500, 100, 400, 200)
+    block1 = Block1(100, 50, 600, 200)
     game_world.add_obj(block1, 0)
+    game_world.add_collision_pair('block1:hero', block1, None)
+
+    ladder = Ladder(200, 200)
+    game_world.add_obj(ladder, 0)
+    game_world.add_collision_pair('ladder:hero', ladder, None)
 
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
     game_world.add_collision_pair('hero:npc_snake', server.hero, None)
     game_world.add_collision_pair('block:hero', None, server.hero)
+    game_world.add_collision_pair('block1:hero', None, server.hero)
+    game_world.add_collision_pair('ladder:hero', None, server.hero)
 
     arrow = Arrow()
     game_world.add_obj(arrow, 1)

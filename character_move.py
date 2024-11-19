@@ -17,6 +17,7 @@ img_size = 128
 class Idle:
     @staticmethod
     def enter(hero, e):
+        hero.is_moving = False
         if a_up(e) or d_down(e) :
             hero.face_dir = -1
 
@@ -25,7 +26,7 @@ class Idle:
 
         hero.action = 1
         hero.frame = 0
-        hero.is_moving = False
+
 
         hero.start_time = get_time()
         pass
@@ -66,6 +67,7 @@ class Walk:
 
     @staticmethod
     def exit(hero, e):
+        hero.is_moving = False
         if x_down(e):
             hero.bomb(3.5)
         pass
@@ -253,6 +255,28 @@ class Attacked:
                                  img_size, img_size, hero.x, hero.y, 100, 100)
         elif hero.frame == 4:
             hero.frame = 9
-            hero.image.clip_draw(img_size * hero.frame, img_size * 15,
-                                 img_size, img_size, hero.x, hero.y, 100, 100)
+            hero.image.clip_draw(img_size *img_size, hero.x, hero.y, 100, 100)
         hero.image.opacify(1.0)
+
+class Ladder:
+    @staticmethod
+    def enter(hero, e):
+        if w_down(e) and isAbleLadder(e):
+            hero.frame = 10
+            pass
+        elif s_down(e) and isAbleLadder(e)
+            pass
+        pass
+
+    @staticmethod
+    def exit(hero, e):
+
+        pass
+
+    @staticmethod
+    def do(hero):
+        pass
+
+    @staticmethod
+    def draw(hero):
+        pass

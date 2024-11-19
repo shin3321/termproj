@@ -67,6 +67,15 @@ def x_up(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
             and e[1].key == SDLK_x)
 
+def w_down(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
+            and e[1].key == SDLK_w)
+
+def w_up(e):
+    return (e[0] == 'INPUT' and e[1].type == SDL_KEYUP
+            and e[1].key == SDLK_w)
+
+
 def space_down(e):
     return (e[0] == 'INPUT' and e[1].type == SDL_KEYDOWN
             and e[1].key == SDLK_SPACE)
@@ -78,6 +87,9 @@ def space_up(e):
 
 def changeHp(e):
     return e[0] == 'CHANGE'
+
+def isAbleLadder(e):
+    return e[0] == 'ladder'
 
 
 
