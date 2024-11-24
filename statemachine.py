@@ -1,5 +1,8 @@
 from sdl2 import SDL_KEYDOWN, SDLK_SPACE, SDLK_d, SDL_KEYUP, SDLK_a, SDLK_z, SDLK_s, SDLK_w, SDLK_LSHIFT, SDLK_x
 
+import game_world
+import server
+
 
 def start_event(e):
     return e[0] == 'START'
@@ -88,10 +91,15 @@ def space_up(e):
 def changeHp(e):
     return e[0] == 'CHANGE'
 
-def isAbleLadder(e):
-    return e[0] == 'ladder'
+#def isAbleLadder(e):
+   # for ladder in server.ladder:  # 모든 사다리 객체 탐색
+        #if game_world.collide(server.hero, ladder):  # 충돌 확인
+          #  return e[0] == 'ladder'
+  # return False
 
 
+def exit_ladder(e):
+    return e[0] == 'exit_ladder'
 
 class StateMachine:
     def __init__(self, o):

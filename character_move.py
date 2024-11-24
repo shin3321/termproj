@@ -12,6 +12,11 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
+UP_SPEED_KMPH = 5
+UP_SPEED_MPM = (UP_SPEED_KMPH * 1000.0 / 60.0)
+UP_SPEED_MPS = (UP_SPEED_MPM / 60.0)
+UP_SPEED_PPS =  UP_SPEED_MPS * PIXEL_PER_METER
+
 img_size = 128
 
 class Idle:
@@ -255,28 +260,42 @@ class Attacked:
                                  img_size, img_size, hero.x, hero.y, 100, 100)
         elif hero.frame == 4:
             hero.frame = 9
-            hero.image.clip_draw(img_size *img_size, hero.x, hero.y, 100, 100)
+            hero.image.clip_draw(img_size *img_size,img_size * 14,
+                                 img_size, img_size, hero.x, hero.y, 100, 100)
         hero.image.opacify(1.0)
 
 class Ladder:
     @staticmethod
     def enter(hero, e):
-        if w_down(e) and isAbleLadder(e):
-            hero.frame = 10
+        if w_down(e):
+            hero.frame = 0
+            hero.up = 1
             pass
-        elif s_down(e) and isAbleLadder(e)
+        elif s_down(e):
+            hero.frame = 0
+            hero.up = -1
+        else:
+            hero.up = 0
             pass
         pass
 
     @staticmethod
     def exit(hero, e):
-
+        hero.up = 0
         pass
 
     @staticmethod
     def do(hero):
+        hero.y += hero.up * 10
+        hero.frame += hero.up *  UP_SPEED_PPS * game_framework.frame_time
+
+        if not isAbleLadder(None):  # 사다리 조건 확인
+            hero.state_machine.add_event(('exit_ladder', 0))
+
         pass
 
     @staticmethod
     def draw(hero):
+        hero.image.clip_draw(img_size * int(hero.frame), img_size * 10,
+                             img_size, img_size, hero.x, hero.y, 100, 100)
         pass

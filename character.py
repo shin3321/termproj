@@ -1,4 +1,5 @@
 from idlelib.configdialog import font_sample_text
+from turtledemo.chaos import jumpto
 
 import game_mode
 import game_world
@@ -37,6 +38,7 @@ class Character:
         self.is_jumping = False
         self.is_moving = False
         self.on_ground = False
+        self.up=0
         self.state_machine.set_transitions(
             {
                 Sleep: {space_down : Idle,
@@ -58,7 +60,8 @@ class Character:
                        space_down: Jump,
                        changeHp: Attacked,
                        space_up: Walk,
-                       z_up: Walk
+                       z_up: Walk,
+                       isAbleLadder: Ladder
                        },
                 # Run: {lshift_up: Walk,
                 #       x_down: Run
@@ -78,9 +81,12 @@ class Character:
                        walk: Walk, idle: Idle
                         },
                 Attacked: {time_out: Idle
-                }
-
-
+                },
+                Ladder:{w_down: Ladder, s_down: Ladder,
+                         w_up: Ladder, s_up: Ladder,
+                        space_down: Jump,
+                        exit_ladder: Idle,
+                        }
             }
         )
 
@@ -140,6 +146,7 @@ class Character:
             self.y = other.yPos + other.height
 
         if group == 'ladder:hero':
+            print(f'{group}')
             self.state_machine.add_event(('ladder', 0))
 
             pass

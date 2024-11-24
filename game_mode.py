@@ -1,3 +1,5 @@
+from random import randint
+
 from pico2d import *
 import random
 
@@ -41,13 +43,14 @@ def init():
 
 
     # w, h, xPos, yPos
-    block1 = Block1(100, 50, 600, 200)
-    game_world.add_obj(block1, 0)
-    game_world.add_collision_pair('block1:hero', block1, None)
+    server.block1 = Block1(100, 50, 600, 200)
+    game_world.add_obj(server.block1, 0)
+    game_world.add_collision_pair('block1:hero', server.block1, None)
 
-    ladder = Ladder(200, 200)
-    game_world.add_obj(ladder, 0)
-    game_world.add_collision_pair('ladder:hero', ladder, None)
+    server.ladder = [Ladder(random.randint(0, 800), random.randint(200, 800)) for _ in range(10)]
+    game_world.add_obj(server.ladder, 0)
+    for ladder in server.ladder :
+        game_world.add_collision_pair('ladder:hero', ladder, None)
 
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
@@ -61,7 +64,7 @@ def init():
 
 
     global npc_snake
-    global npc_bat
+    global npc_batd
     global npc_snail
 
     npc_snakes = [NPC_snake(random.randint(700, 1600-100), 60) for _ in range(10)]

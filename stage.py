@@ -125,6 +125,7 @@ class Ladder: # 64, 64
         pass
 
     def draw(self):
+        draw_rectangle(self.x - 30, self.y - 40, self.x+30, self.y +115)
         self.image.clip_draw(self.size * 3, self.size * 7, self.size, self.size,
                                 self.x, self.y+75, 75, 75)
         self.image.clip_draw(self.size * 2, self.size * 7, self.size, self.size,
@@ -132,4 +133,8 @@ class Ladder: # 64, 64
         pass
 
     def handle_collision(self, group, other):
+        pass
+
+    def get_bb(self):
+        return (self.x - 30, self.y - 40, self.x+30, self.y +115)
         pass
