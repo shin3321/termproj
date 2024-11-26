@@ -27,8 +27,8 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = server.block.height +50
-        self.vy = 0 #중력 받게 해서 항상 블록 위에 서 있게 하기
+        self.y = server.block.height +30
+        self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
         self.is_invincible = False
@@ -90,16 +90,19 @@ class Character:
             }
         )
 
-
     def update(self):
-        if self.on_ground == False:
-            self.velocity_y = 30
-            self.vy += self.gravity
+        if not self.on_ground:
+            # 중력 적용
+            self.vy += self.gravity * game_framework.frame_time
             self.y += self.vy * game_framework.frame_time
 
-        elif self.on_ground == True:
+        elif self.on_ground:
+            # 땅에 있을 때 낙하 속도 초기화
+            self.vy = 0
             self.velocity_y = 0
-            self.state_machine.update()
+
+        # 상태 업데이트a
+        self.state_machine.update()
 
         # if self.y < server.block.height:  # 바닥 y 좌표
         #     self.y = 60
@@ -135,19 +138,27 @@ class Character:
             #     self.hp = 5
             #     #초기 상태로
             #     pass
-        if group == 'block:hero':
-            self.is_jumping = False
-            self.on_ground = True
 
-        if group == 'block1:hero':
-            print(f'{group}')
+        if group == 'block:hero' or group == 'block1:hero':
+            # 캐릭터가 블럭 위에 정확히 착지
+            self.vy = 0
+            self.velocity_y = 0
             self.is_jumping = False
             self.on_ground = True
-            self.y = other.yPos + other.height
+            self.y = other.yPos + other.height  # 블럭 위에 위치 조정
+
+        if not (group == 'block:hero' or group == 'block1:hero'):
+            # 블럭과 충돌하지 않은 경우
+            self.on_ground = False
 
         if group == 'ladder:hero':
-            print(f'{group}')
+            self.x = other.x
             self.state_machine.add_event(('ladder', 0))
+
+            if not group ==  'ladder:hero':
+                print(f'{group} ')
+                self.state_machine.add_event(('exit_ladder', 0))
+
 
             pass
 
@@ -168,9 +179,14 @@ class Character:
         self.whip = Whip(self.x, self.y, self.face_dir) #12, 3, 6
         game_world.add_obj(self.whip, 0)
 
+        for server.boxs in game_world[0]:
+            if isinstance(server.boxs, Box):
+                game_world.add_collision_pair('box:whip', None, self.whip)
+
         for npc_snake in game_world.world[0]:
             if isinstance(npc_snake, NPC_snake):
                 game_world.add_collision_pair('whip:npc_snake', self.whip, npc_snake)
+
 
 
 

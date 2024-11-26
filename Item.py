@@ -11,7 +11,7 @@ class Item:
         self.x = x
         self.y = y
         self.frameX = random.randint(0, 15)
-        self.frmaeY = random.randint(0, 15)
+        self.frameY = random.randint(0, 15)
 
 
     def update(self):
@@ -19,6 +19,8 @@ class Item:
 
 
     def draw(self):
+        self.image.clip_draw(img_size * self.frameX, img_size * self.frameY,
+                             img_size, img_size, self.x, self.y, 65,65 )
         pass
 
 

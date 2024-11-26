@@ -61,18 +61,18 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(hero, e):
+        hero.action = 1
+        hero.is_moving = True
         if d_down(e) or a_up(e):
             hero.dir = 1
 
         if a_down(e) or d_up(e):
             hero.dir = -1
 
-        hero.action = 1
-        hero.is_moving = True
+
 
     @staticmethod
     def exit(hero, e):
-        hero.is_moving = False
         if x_down(e):
             hero.bomb(3.5)
         pass
@@ -84,11 +84,11 @@ class Walk:
     @staticmethod
     def draw(hero):
         if hero.dir == 1:
-            hero.image.clip_draw(img_size * hero.frame,img_size*15,
+            hero.image.clip_draw(img_size * int(hero.frame),img_size*15,
                              img_size, img_size, hero.x, hero.y, 100, 100)
 
         if hero.dir == -1:
-            hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
+            hero.image.clip_composite_draw(img_size * int(hero.frame),img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
 class Jump:
@@ -128,11 +128,11 @@ class Jump:
     @staticmethod
     def draw(hero):
         if hero.dir == 1:
-            hero.image.clip_draw(img_size * hero.frame,img_size*15,
+            hero.image.clip_draw(img_size * int(hero.frame),img_size*15,
                              img_size, img_size, hero.x, hero.y, 100, 100)
 
         if hero.dir == -1:
-            hero.image.clip_composite_draw(img_size * hero.frame,img_size*15,
+            hero.image.clip_composite_draw(img_size * int(hero.frame),img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
 
 
@@ -210,11 +210,11 @@ class Attack:   #(4, 5, 8frame)
     @staticmethod
     def draw(hero):
         if hero.face_dir == 1:
-            hero.image.clip_draw(img_size * hero.frame, img_size * 11,
+            hero.image.clip_draw(img_size * int(hero.frame), img_size * 11,
                                  img_size, img_size, hero.x, hero.y, 100, 100)
 
         elif hero.face_dir == -1:
-            hero.image.clip_composite_draw(img_size * hero.frame, img_size * 11,
+            hero.image.clip_composite_draw(img_size * int(hero.frame), img_size * 11,
                                            img_size, img_size, 0, 'h', hero.x, hero.y - 5, 100, 100)
 
 class Attacked:
@@ -256,11 +256,11 @@ class Attacked:
     def draw(hero):
         hero.image.opacify(hero.image_alpha / 255.0)
         if hero.frame < 4:
-            hero.image.clip_draw(img_size * hero.frame, img_size * 14,
+            hero.image.clip_draw(img_size * int(hero.frame), img_size * 14,
                                  img_size, img_size, hero.x, hero.y, 100, 100)
         elif hero.frame == 4:
             hero.frame = 9
-            hero.image.clip_draw(img_size *img_size,img_size * 14,
+            hero.image.clip_draw(img_size *int(hero.frame),img_size * 14,
                                  img_size, img_size, hero.x, hero.y, 100, 100)
         hero.image.opacify(1.0)
 
@@ -286,11 +286,12 @@ class Ladder:
 
     @staticmethod
     def do(hero):
-        hero.y += hero.up * 10
-        hero.frame += hero.up *  UP_SPEED_PPS * game_framework.frame_time
+        if hero.up != 0:  # W 또는 S 키 입력이 있을 때만
+            hero.y += hero.up * 10
+            hero.frame += hero.up * UP_SPEED_PPS * game_framework.frame_time
+        else:
+            hero.frame = 0
 
-        if not isAbleLadder(None):  # 사다리 조건 확인
-            hero.state_machine.add_event(('exit_ladder', 0))
 
         pass
 

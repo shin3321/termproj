@@ -12,7 +12,7 @@ from NPC import *
 import server
 import random
 
-from stage import Block, Arrow, Block1, Ladder
+from stage import Block, Arrow, Block1, Ladder, Box
 
 center_x = screen_width/2
 center_y = screen_height/2
@@ -47,10 +47,16 @@ def init():
     game_world.add_obj(server.block1, 0)
     game_world.add_collision_pair('block1:hero', server.block1, None)
 
-    server.ladder = [Ladder(random.randint(0, 800), random.randint(200, 800)) for _ in range(10)]
-    game_world.add_obj(server.ladder, 0)
-    for ladder in server.ladder :
-        game_world.add_collision_pair('ladder:hero', ladder, None)
+    server.boxs = [Box(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
+    for box in server.boxs:
+        game_world.add_obj(box, 0)
+        game_world.add_collision_pair('box, whip', box, None)
+
+
+    server.ladders = [Ladder(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
+    for ladder in server.ladders:
+        game_world.add_obj(ladder, 0)
+        game_world.add_collision_pair('ladder:hero', ladder, None)  # 각 사다리에 대해 등록
 
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
@@ -58,6 +64,7 @@ def init():
     game_world.add_collision_pair('block:hero', None, server.hero)
     game_world.add_collision_pair('block1:hero', None, server.hero)
     game_world.add_collision_pair('ladder:hero', None, server.hero)
+
 
     arrow = Arrow()
     game_world.add_obj(arrow, 1)

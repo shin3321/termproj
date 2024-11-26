@@ -91,12 +91,8 @@ def space_up(e):
 def changeHp(e):
     return e[0] == 'CHANGE'
 
-#def isAbleLadder(e):
-   # for ladder in server.ladder:  # 모든 사다리 객체 탐색
-        #if game_world.collide(server.hero, ladder):  # 충돌 확인
-          #  return e[0] == 'ladder'
-  # return False
-
+def isAbleLadder(e):
+    return e[0] == 'ladder'
 
 def exit_ladder(e):
     return e[0] == 'exit_ladder'

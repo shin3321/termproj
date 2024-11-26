@@ -1,6 +1,8 @@
 from pico2d import *
 import server
+from Item import Item
 from background import world_width
+from game_world import remove_obj, add_obj
 
 img_size = 128
 
@@ -9,6 +11,7 @@ class Block:
         self.x, self.y = world_width/2, 0
         self.width = get_canvas_width()
         self.height = 60
+        self.yPos = 30
         self.image = load_image('img/1Tileset.png')
 
     def draw(self):
@@ -137,4 +140,35 @@ class Ladder: # 64, 64
 
     def get_bb(self):
         return (self.x - 30, self.y - 40, self.x+30, self.y +115)
+        pass
+
+class Box:
+    def __init__(self, x, y):
+        self.image = load_image('img/items.png')
+        self.x, self.y = 400, 60
+        self.size = 64
+        self.item = None
+        pass
+
+    def update(self):
+        pass
+
+    def draw(self):
+        draw_rectangle(self.x - 30, self.y - 30, self.x+30, self.y +30)
+        self.image.clip_draw(img_size * 2, img_size * 15, img_size, img_size,
+                                self.x, self.y, 65, 65)
+
+        pass
+
+    def handle_collision(self, group, other):
+        if group == 'box:whip':
+            print(f'{group}')
+            self.item = Item(self.x, self.y)
+            remove_obj(self)
+            add_obj(self.item, 0)
+            pass
+        pass
+
+    def get_bb(self):
+        return (self.x - 30, self.y - 30, self.x+30, self.y +30)
         pass
