@@ -50,7 +50,7 @@ def init():
     server.boxs = [Box(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
     for box in server.boxs:
         game_world.add_obj(box, 0)
-        game_world.add_collision_pair('box, whip', box, None)
+        game_world.add_collision_pair('box:whip', box, None)
 
 
     server.ladders = [Ladder(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]

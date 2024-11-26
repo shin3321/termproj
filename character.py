@@ -21,6 +21,7 @@ class Character:
         self.jump_velocity = 50
         self.jump_height = 20
         self.gravity = -1
+        self.bombCount = 5
         self.velocity_x, self.velocity_y = 30, 30
         self.image = load_image('img/hero.png')#125,138
         self.font = load_font('ENCR10B.TTF', 16)
@@ -115,14 +116,18 @@ class Character:
 
 
     def draw(self):
+        sx = self.x - server.background.window_left
+        sy = self.y - server.background.window_bottom
         self.font.draw(self.x + 50, self.y + 50, f'{self.hp:02d}', (255, 255, 0))
-        draw_rectangle(self.x - 30, self.y - 40, self.x + 30, self.y + 30)
-        self.sx, self.sy = get_canvas_width() // 2, get_canvas_height() // 2
+        draw_rectangle(*self.get_bb())
+
         self.state_machine.draw(self)
 
     def get_bb(self):
         # fill here
-        return self.x - 30, self.y - 40, self.x + 30, self.y + 30
+        sx = self.x - server.background.window_left
+        sy = self.y - server.background.window_bottom
+        return sx- 30, sy - 40, sx + 30, sy + 30
         pass
 
     def handle_collision(self, group, other):
@@ -152,8 +157,11 @@ class Character:
             self.on_ground = False
 
         if group == 'ladder:hero':
-            self.x = other.x
-            self.state_machine.add_event(('ladder', 0))
+            if abs(self.x - other.x) < 0.2:
+                self.vy = 0
+                self.velocity_y = 0
+                self.x = other.x
+                self.state_machine.add_event(('ladder', 0))
 
             if not group ==  'ladder:hero':
                 print(f'{group} ')
@@ -170,18 +178,20 @@ class Character:
             self.bounce_count -= 1
 
     def bomb(self, vel):
-        bomb = Bomb(self.x, self.y, self.face_dir * vel)
-        game_world.add_obj(bomb, 1)
-        game_world.add_collision_pair('bomb:npc_snake', bomb, None)
-        game_world.add_collision_pair('block:bomb', None, bomb)
+        if self.bombCount > 0:
+            bomb = Bomb(self.x, self.y, self.face_dir * vel)
+            game_world.add_obj(bomb, 1)
+            game_world.add_collision_pair('bomb:npc_snake', bomb, None)
+            game_world.add_collision_pair('block:bomb', None, bomb)
+            self.bombCount -= 1
+        elif self.bombCount == 0:
+            pass
 
     def create_whip(self):
         self.whip = Whip(self.x, self.y, self.face_dir) #12, 3, 6
         game_world.add_obj(self.whip, 0)
 
-        for server.boxs in game_world[0]:
-            if isinstance(server.boxs, Box):
-                game_world.add_collision_pair('box:whip', None, self.whip)
+        game_world.add_collision_pair('box:whip', None, self.whip)
 
         for npc_snake in game_world.world[0]:
             if isinstance(npc_snake, NPC_snake):

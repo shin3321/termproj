@@ -28,7 +28,6 @@ class Background():
     def __init__(self):
         self.image =  load_image('img/lv1backgrounds.png')
         self.cw = get_canvas_width()
-        print(f'{self.cw}')
         self.ch = get_canvas_height()
         self.w = self.image.w
         self.h = self.image.h

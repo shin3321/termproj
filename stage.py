@@ -55,8 +55,7 @@ class Block1:
         #num_copies = int( self.width / 255) + 1
         #for i in range(num_copie
             #x_position = i * 60
-        draw_rectangle(self.xPos - (self.width+20) , self.yPos - (self.height / 2), self.xPos + (self.width+20),
-                           self.yPos + (self.height / 2))
+        draw_rectangle(*self.get_bb())
 
         self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
             #self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
@@ -145,7 +144,7 @@ class Ladder: # 64, 64
 class Box:
     def __init__(self, x, y):
         self.image = load_image('img/items.png')
-        self.x, self.y = 400, 60
+        self.x, self.y = x, y
         self.size = 64
         self.item = None
         pass
@@ -154,7 +153,7 @@ class Box:
         pass
 
     def draw(self):
-        draw_rectangle(self.x - 30, self.y - 30, self.x+30, self.y +30)
+        draw_rectangle(*self.get_bb())
         self.image.clip_draw(img_size * 2, img_size * 15, img_size, img_size,
                                 self.x, self.y, 65, 65)
 
@@ -166,7 +165,7 @@ class Box:
             self.item = Item(self.x, self.y)
             remove_obj(self)
             add_obj(self.item, 0)
-            pass
+            return
         pass
 
     def get_bb(self):
