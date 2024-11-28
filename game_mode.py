@@ -12,7 +12,7 @@ from NPC import *
 import server
 import random
 
-from stage import Block, Arrow, Block1, Ladder, Box
+from stage import Block, Arrow, Ladder, Box
 
 center_x = screen_width/2
 center_y = screen_height/2
@@ -36,22 +36,24 @@ def init():
     server.background = Background()
     game_world.add_obj(server.background, 0)
 
-    server.block = Block()
+    server.block = Block(world_width, 60, world_width // 2, 10, is_background=True)
     game_world.add_obj(server.block, 0)
     game_world.add_collision_pair('block:hero', server.block, None)
     game_world.add_collision_pair('block:bomb', server.block, None)
 
 
     # w, h, xPos, yPos
-    server.block1 = Block1(100, 50, 600, 200)
-    game_world.add_obj(server.block1, 0)
-    game_world.add_collision_pair('block1:hero', server.block1, None)
+    block_positions = [(100, 50, 1000, 200), (200, 50, 300, 200), (100, 50, 650, 300)]
+    server.blocks = [Block(width, height, x, y) for width, height, x, y in block_positions]
 
-    server.boxs = [Box(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
+    for block in server.blocks:
+        game_world.add_obj(block, 0)
+        game_world.add_collision_pair('block:hero', block, None)
+
+    server.boxs = [Box(random.randint(0, 800), random.randint(60, 100)) for _ in range(5)]
     for box in server.boxs:
         game_world.add_obj(box, 0)
         game_world.add_collision_pair('box:whip', box, None)
-
 
     server.ladders = [Ladder(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
     for ladder in server.ladders:
@@ -64,7 +66,7 @@ def init():
     game_world.add_collision_pair('block:hero', None, server.hero)
     game_world.add_collision_pair('block1:hero', None, server.hero)
     game_world.add_collision_pair('ladder:hero', None, server.hero)
-
+    game_world.add_collision_pair('item:hero', None, server.hero)
 
     arrow = Arrow()
     game_world.add_obj(arrow, 1)

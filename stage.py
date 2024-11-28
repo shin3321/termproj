@@ -1,4 +1,6 @@
 from pico2d import *
+
+import game_world
 import server
 from Item import Item
 from background import world_width
@@ -6,66 +8,44 @@ from game_world import remove_obj, add_obj
 
 img_size = 128
 
+
 class Block:
-    def __init__(self):
-        self.x, self.y = world_width/2, 0
-        self.width = get_canvas_width()
-        self.height = 60
-        self.yPos = 30
-        self.image = load_image('img/1Tileset.png')
-
-    def draw(self):
-        draw_rectangle(0, 0, world_width + 50, self.height-15)
-        num_copies = int(world_width / 255) + 1
-        for i in range(num_copies):
-            x_position = i * 255
-            self.image.clip_draw(0, 190, 255, self.height, x_position, self.y)
-
-        num_copies = int(world_width / 60) + 1
-        for i in range(num_copies):
-            x_position = i * 60
-            self.image.clip_draw(320, 405, 60, 50, x_position, self.height-10)
-
-
-    def update(self):
-        pass
-
-
-    def get_bb(self):
-
-        return 0, 0, world_width + 50, self.height-15
-
-    def handle_collision(self, group, other):
-        pass
-
-class Block1:
-    def __init__(self, w, h, xPos, yPos):
+    def __init__(self, width, height, xPos, yPos, is_background=False):
         self.xPos = xPos
         self.yPos = yPos
-        self.width = w
-        self.height = h
+        self.width = width
+        self.height = height
+        self.is_background = is_background
         self.image = load_image('img/1Tileset.png')
 
+    def draw(self):
+        # 충돌 영역 그리기 (디버깅용)
+        draw_rectangle(*self.get_bb())
+
+        if self.is_background:  # 배경 블록 처리
+            num_copies = int(world_width / 255) + 1
+            for i in range(num_copies):
+                x_position = i * 255
+                self.image.clip_draw(0, 190, 255, self.height, x_position, self.yPos)
+
+            num_copies = int(world_width / 60) + 1
+            for i in range(num_copies):
+                x_position = i * 60
+                self.image.clip_draw(320, 405, 60, 50, x_position, self.height - 10)
+        else:  # 일반 블록 처리
+            self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
 
     def update(self):
         pass
 
-
-    def draw(self):
-        #num_copies = int( self.width / 255) + 1
-        #for i in range(num_copie
-            #x_position = i * 60
-        draw_rectangle(*self.get_bb())
-
-        self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
-            #self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
-        pass
-
-
     def get_bb(self):
-        return (self.xPos - (self.width+20) , self.yPos - (self.height / 2), self.xPos + (self.width+20),
-                           self.yPos)
-
+        if self.is_background:
+            return 0, 0, world_width + 50, self.height - 15
+        else:
+            return (self.xPos - self.width // 2,
+                    self.yPos - self.height // 2,
+                    self.xPos + self.width // 2,
+                    self.yPos + self.height // 2)
 
     def handle_collision(self, group, other):
         pass
@@ -162,9 +142,12 @@ class Box:
     def handle_collision(self, group, other):
         if group == 'box:whip':
             print(f'{group}')
+
             self.item = Item(self.x, self.y)
+
             remove_obj(self)
             add_obj(self.item, 0)
+            game_world.add_collision_pair("item:hero", self.item, None )
             return
         pass
 

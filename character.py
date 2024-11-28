@@ -28,7 +28,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = server.block.height +30
+        self.y = 60
         self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
@@ -81,7 +81,8 @@ class Character:
                        d_up: Idle, a_up: Idle,
                        walk: Walk, idle: Idle
                         },
-                Attacked: {time_out: Idle
+                Attacked: {time_out: Idle,
+
                 },
                 Ladder:{w_down: Ladder, s_down: Ladder,
                          w_up: Ladder, s_up: Ladder,
@@ -102,7 +103,7 @@ class Character:
             self.vy = 0
             self.velocity_y = 0
 
-        # 상태 업데이트a
+        # 상태 업데이트
         self.state_machine.update()
 
         # if self.y < server.block.height:  # 바닥 y 좌표
@@ -116,9 +117,8 @@ class Character:
 
 
     def draw(self):
-        sx = self.x - server.background.window_left
-        sy = self.y - server.background.window_bottom
-        self.font.draw(self.x + 50, self.y + 50, f'{self.hp:02d}', (255, 255, 0))
+        self.font.draw(self.x + 50, self.y + 50, f'{self.hp:02d}, {self.bombCount:02d}', (255, 255, 0))
+
         draw_rectangle(*self.get_bb())
 
         self.state_machine.draw(self)
@@ -144,7 +144,7 @@ class Character:
             #     #초기 상태로
             #     pass
 
-        if group == 'block:hero' or group == 'block1:hero':
+        if group == 'block:hero':
             # 캐릭터가 블럭 위에 정확히 착지
             self.vy = 0
             self.velocity_y = 0
@@ -152,7 +152,7 @@ class Character:
             self.on_ground = True
             self.y = other.yPos + other.height  # 블럭 위에 위치 조정
 
-        if not (group == 'block:hero' or group == 'block1:hero'):
+        if not (group == 'block:hero'):
             # 블럭과 충돌하지 않은 경우
             self.on_ground = False
 
