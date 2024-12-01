@@ -54,8 +54,8 @@ def init():
     for box in server.boxs:
         game_world.add_obj(box, 0)
         game_world.add_collision_pair('box:whip', box, None)
-
-    server.ladders = [Ladder(random.randint(0, 800), random.randint(160, 800)) for _ in range(5)]
+    ladder_positions = [(900, 100), (200, 100), (550, 200)]
+    server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
         game_world.add_obj(ladder, 0)
         game_world.add_collision_pair('ladder:hero', ladder, None)  # 각 사다리에 대해 등록
@@ -64,7 +64,6 @@ def init():
     game_world.add_obj(server.hero, 1)
     game_world.add_collision_pair('hero:npc_snake', server.hero, None)
     game_world.add_collision_pair('block:hero', None, server.hero)
-    game_world.add_collision_pair('block1:hero', None, server.hero)
     game_world.add_collision_pair('ladder:hero', None, server.hero)
     game_world.add_collision_pair('item:hero', None, server.hero)
 

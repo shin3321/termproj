@@ -95,6 +95,7 @@ def isAbleLadder(e):
     return e[0] == 'ladder'
 
 def exit_ladder(e):
+    print('exit_ladder')
     return e[0] == 'exit_ladder'
 
 class StateMachine:

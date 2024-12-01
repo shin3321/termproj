@@ -32,7 +32,7 @@ class Block:
             for i in range(num_copies):
                 x_position = i * 60
                 self.image.clip_draw(320, 405, 60, 50, x_position, self.height - 10)
-        else:  # 일반 블록 처리
+        else:
             self.image.clip_draw(0, 190, 255, self.height, self.xPos, self.yPos)
 
     def update(self):
@@ -107,7 +107,7 @@ class Ladder: # 64, 64
         pass
 
     def draw(self):
-        draw_rectangle(self.x - 30, self.y - 40, self.x+30, self.y +115)
+        draw_rectangle(*self.get_bb())
         self.image.clip_draw(self.size * 3, self.size * 7, self.size, self.size,
                                 self.x, self.y+75, 75, 75)
         self.image.clip_draw(self.size * 2, self.size * 7, self.size, self.size,

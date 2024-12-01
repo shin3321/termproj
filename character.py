@@ -18,7 +18,7 @@ class Character:
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time = 0
-        self.jump_velocity = 50
+        self.jump_velocity = 10
         self.jump_height = 20
         self.gravity = -1
         self.bombCount = 5
@@ -28,7 +28,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = 60
+        self.y = 100
         self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
@@ -38,7 +38,7 @@ class Character:
         self.whip = None
         self.is_jumping = False
         self.is_moving = False
-        self.on_ground = False
+        self.on_ground = True
         self.up=0
         self.state_machine.set_transitions(
             {
@@ -77,7 +77,7 @@ class Character:
                        z_down: Attack,
                        space_down: Jump,
                        changeHp: Attacked,
-                       d_down: Walk, a_down: Walk,
+                       d_down: Jump, a_down: Jump,
                        d_up: Idle, a_up: Idle,
                        walk: Walk, idle: Idle
                         },
@@ -101,7 +101,6 @@ class Character:
         elif self.on_ground:
             # 땅에 있을 때 낙하 속도 초기화
             self.vy = 0
-            self.velocity_y = 0
 
         # 상태 업데이트
         self.state_machine.update()
@@ -124,11 +123,9 @@ class Character:
         self.state_machine.draw(self)
 
     def get_bb(self):
-        # fill here
         sx = self.x - server.background.window_left
         sy = self.y - server.background.window_bottom
-        return sx- 30, sy - 40, sx + 30, sy + 30
-        pass
+        return sx - 30, sy - 40, sx + 30, sy + 40  # 박스 높이 조정
 
     def handle_collision(self, group, other):
         if group == 'hero:npc_snake' and not self.is_invincible:
@@ -145,36 +142,43 @@ class Character:
             #     pass
 
         if group == 'block:hero':
-            # 캐릭터가 블럭 위에 정확히 착지
-            self.vy = 0
-            self.velocity_y = 0
-            self.is_jumping = False
-            self.on_ground = True
-            self.y = other.yPos + other.height  # 블럭 위에 위치 조정
+            if self.vy < 0:
+                self.vy = 0
+                self.jump_velocity = 0
+                self.is_jumping = False
+                self.on_ground = True
+                self.y = other.yPos + other.height // 2 + 50 # 캐릭터를 블록 위로 이동
+            else:
+                self.on_ground = False
+        else:
+            # 사다리 관련이 아닐 때만 `on_ground` 처리
+            if not group.startswith('ladder:'):
+                self.on_ground = False
 
-        if not (group == 'block:hero'):
-            # 블럭과 충돌하지 않은 경우
+        if not group == 'block:hero':
             self.on_ground = False
 
         if group == 'ladder:hero':
-            if abs(self.x - other.x) < 0.2:
+            if abs(self.x - other.x) < 0.5:
                 self.vy = 0
                 self.velocity_y = 0
                 self.x = other.x
                 self.state_machine.add_event(('ladder', 0))
 
-            if not group ==  'ladder:hero':
-                print(f'{group} ')
-                self.state_machine.add_event(('exit_ladder', 0))
+        else:
+            self.state_machine.add_event(('exit_ladder', 0))
 
 
             pass
 
     def bounce_back(self):
         if self.bounce_count > 0:
-            self.x -= self.velocity_x
-            self.velocity_y += self.gravity * self.velocity_y
-            self.y += self.velocity_y
+            # 블록 위로 착지하기 위해 y좌표 조정
+            self.y = server.block.yPos + server.block.height // 2 + 50 # 블록의 위쪽에 착지
+            self.velocity_y = min(self.velocity_y, 0)  # 위로 튕길 때는 속도를 0으로 설정
+            self.velocity_y += self.gravity  # 중력 영향을 받게 함
+
+            self.x -= self.velocity_x  
             self.bounce_count -= 1
 
     def bomb(self, vel):
