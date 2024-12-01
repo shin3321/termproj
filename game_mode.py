@@ -14,6 +14,17 @@ import random
 
 from stage import Block, Arrow, Ladder, Box
 
+stage_config = {
+    1: {
+        "npcs": [NPC_snake, NPC_bat],
+        "npc_pos":[(300, 150), (600, 250), (800, 350)]
+    },
+    2: {
+        "npcs": [NPC_snail, NPC_mini_frog],
+        "npc_positions": [(300, 150), (600, 250), (800, 350)],
+    }
+}
+
 center_x = screen_width/2
 center_y = screen_height/2
 
@@ -29,7 +40,8 @@ def handle_events():
         else:
             server.hero.handle_event(event)
 
-def init():
+def init(stage):
+
     global Running
 
     Running = True
@@ -49,11 +61,14 @@ def init():
     for block in server.blocks:
         game_world.add_obj(block, 0)
         game_world.add_collision_pair('block:hero', block, None)
+        game_world.add_collision_pair('block:bomb', block, None)
 
     server.boxs = [Box(random.randint(0, 800), random.randint(60, 100)) for _ in range(5)]
     for box in server.boxs:
         game_world.add_obj(box, 0)
         game_world.add_collision_pair('box:whip', box, None)
+        game_world.add_collision_pair('bomb:box', None, box)
+
     ladder_positions = [(900, 100), (200, 100), (550, 200)]
     server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
@@ -71,17 +86,19 @@ def init():
     game_world.add_obj(arrow, 1)
 
 
-    global npc_snake
-    global npc_batd
-    global npc_snail
+    # global npc_snake
+    # global npc_batd
+    # global npc_snail
 
-    npc_snakes = [NPC_snake(random.randint(700, 1600-100), 60) for _ in range(10)]
-    game_world.add_objects(npc_snakes, 0)
-    for npc_snake in npc_snakes:
-        game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
-        game_world.add_collision_pair('whip:npc_snake', None, npc_snake)
-        game_world.add_collision_pair('bomb:npc_snake', None, npc_snake)
+    init_npcs(stage)
 
+    # npc_snakes = [NPC_snake(random.randint(700, 1600-100), 60) for _ in range(10)]
+    # game_world.add_objects(npc_snakes, 0)
+    # for npc_snake in npc_snakes:
+    #     game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
+    #     game_world.add_collision_pair('whip:npc_snake', None, npc_snake)
+    #     game_world.add_collision_pair('bomb:npc_snake', None, npc_snake)
+    #
 
 
     # npc_bats = [NPC_bat(random.randint(100, 1600-100), 60) for _ in range(10)]
@@ -98,6 +115,30 @@ def init():
     #     game_world.add_collision_pair('hero:npc_snail', None, npc_snail)
     #     game_world.add_collision_pair('whip,npc_snake', None, npc_snail)
     # game_world.add_collision_pair('hero:npc_snail', server.hero, None)
+
+def init_npcs(stage):
+    config = stage_config[stage]
+
+    npcs = config["npcs"]  # 현재 스테이지에서 등장할 NPC 클래스 리스트
+    npc_positions = config["npc_pos"]  # NPC 위치 리스트
+
+    server.npcs = []
+    for i, pos in enumerate(npc_positions):
+        npc_class = npcs[i % len(npcs)]  # NPC 종류 순환
+        npc = npc_class(*pos)  # NPC 생성
+        server.npcs.append(npc)
+        game_world.add_obj(npc, 0)  # 게임 월드에 추가
+
+        # 충돌 그룹 등록
+        game_world.add_collision_pair(f'hero:npc_{npc_class.__name__.lower()}', server.hero, npc)
+        game_world.add_collision_pair(f'whip:npc_{npc_class.__name__.lower()}', None, npc)
+
+
+def next_stage(current_stage):
+    if current_stage == 1:
+        init(2)  # 스테이지 2로 전환
+    elif current_stage == 2:
+        print("Game Over or Loop to Stage 1")
 
 
 def finish():

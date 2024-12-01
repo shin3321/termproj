@@ -39,7 +39,7 @@ class Idle:
     @staticmethod
     def exit(hero, e):
         if x_down(e):
-            hero.bomb(3)
+            hero.bomb(2)
         pass
     @staticmethod
     def do(hero):
@@ -287,7 +287,7 @@ class Ladder:
     @staticmethod
     def do(hero):
         if hero.up != 0:  # W 또는 S 키 입력이 있을 때만
-            hero.y += hero.up * 10
+            hero.y += hero.up * 5
             hero.frame += hero.up * UP_SPEED_PPS * game_framework.frame_time
         else:
             hero.frame = 0

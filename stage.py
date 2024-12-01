@@ -10,7 +10,7 @@ img_size = 128
 
 
 class Block:
-    def __init__(self, width, height, xPos, yPos, is_background=False):
+    def __init__(self, width, height, xPos, yPos, is_background=False,):
         self.xPos = xPos
         self.yPos = yPos
         self.width = width
@@ -42,10 +42,10 @@ class Block:
         if self.is_background:
             return 0, 0, world_width + 50, self.height - 15
         else:
-            return (self.xPos - self.width // 2,
-                    self.yPos - self.height // 2,
-                    self.xPos + self.width // 2,
-                    self.yPos + self.height // 2)
+            return (self.xPos - self.width,
+                    self.yPos,
+                    self.xPos + self.width ,
+                    self.yPos + self.height / 2)
 
     def handle_collision(self, group, other):
         pass
@@ -149,6 +149,7 @@ class Box:
             add_obj(self.item, 0)
             game_world.add_collision_pair("item:hero", self.item, None )
             return
+
         pass
 
     def get_bb(self):

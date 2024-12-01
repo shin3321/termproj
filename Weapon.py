@@ -53,10 +53,14 @@ class Whip:
         pass
 
     def get_bb(self):
-        if self.frame >= 10 and self.frame <= 13 :
+        if self.frame >= 10 and self.frame <= 13 and self.face_dir == 1 :
             return self.x, self.y , self.x, self.y
-        if self.frame >=14:
+        if self.frame >=14and self.face_dir == 1:
             return self.x - 20, self.y - 20, self.x+70, self.y+20
+        if self.frame >= 10 and self.frame <= 13 and self.face_dir == -1 :
+            return self.x, self.y , self.x, self.y
+        if self.frame >=14and self.face_dir == -1:
+            return self.x - 70, self.y - 20, self.x-20, self.y+20
         pass
 
     def handle_collision(self, group, other):
@@ -100,17 +104,17 @@ class Bomb: #(1, 6)
         self.check_collision()
 
     def check_collision(self):
-        bomb_bb = self.get_bb()  # 폭탄의 충돌 범위
+        bomb_bb = self.get_bb()
         for group, (group_a, group_b) in game_world.collision_pairs.items():
-            if self in group_a:  # 폭탄이 그룹 A에 속해 있는 경우
-                for obj in group_b:  # 그룹 B의 객체와 충돌 검사
-                    if game_world.collide(self, obj):  # 충돌하면
+            if self in group_a:
+                for obj in group_b:
+                    if game_world.collide(self, obj):
                         self.handle_collision(group, obj)
 
     def handle_collision(self, group, other):
-        if group == 'bomb:npc_snake':
-            if game_world.collide(self, other):  # get_bb() 충돌 확인
-                game_world.schedule_remove(other, 4)  # 충돌한 객체만 5초 후 삭제 예약
+        if group == 'bomb:npc_snake' or  group == 'bomb:box' :
+            if game_world.collide(self, other):
+                game_world.schedule_remove(other, 4)
         if group == 'block:bomb':
             self.velocity_x, self.velocity_y = 0, 0
 

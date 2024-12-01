@@ -1,7 +1,7 @@
 from pico2d import  *
 
 
-class Map2:
+class Block:
     def __init__(self):
         self.image = load_image('img/Jungle_Tiles.png')
         self.x, self.y = 0,0

@@ -28,7 +28,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = 100
+        self.y = 60
         self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
@@ -87,6 +87,7 @@ class Character:
                 Ladder:{w_down: Ladder, s_down: Ladder,
                          w_up: Ladder, s_up: Ladder,
                         space_down: Jump,
+                        space_up: Jump,
                         exit_ladder: Idle,
                         }
             }
@@ -94,15 +95,12 @@ class Character:
 
     def update(self):
         if not self.on_ground:
-            # 중력 적용
             self.vy += self.gravity * game_framework.frame_time
             self.y += self.vy * game_framework.frame_time
 
         elif self.on_ground:
-            # 땅에 있을 때 낙하 속도 초기화
             self.vy = 0
 
-        # 상태 업데이트
         self.state_machine.update()
 
         # if self.y < server.block.height:  # 바닥 y 좌표
@@ -147,19 +145,19 @@ class Character:
                 self.jump_velocity = 0
                 self.is_jumping = False
                 self.on_ground = True
-                self.y = other.yPos + other.height // 2 + 50 # 캐릭터를 블록 위로 이동
+                self.y = other.yPos + other.height // 2 + 46 # 캐릭터를 블록 위로 이동
             else:
                 self.on_ground = False
         else:
-            # 사다리 관련이 아닐 때만 `on_ground` 처리
-            if not group.startswith('ladder:'):
+            if not group.startswith('ladder:') and group.startswith('block:'):
                 self.on_ground = False
 
         if not group == 'block:hero':
+            print(f'{self.on_ground}')
             self.on_ground = False
 
         if group == 'ladder:hero':
-            if abs(self.x - other.x) < 0.5:
+            if abs(self.x - other.x) < 1.0:
                 self.vy = 0
                 self.velocity_y = 0
                 self.x = other.x
@@ -187,6 +185,7 @@ class Character:
             game_world.add_obj(bomb, 1)
             game_world.add_collision_pair('bomb:npc_snake', bomb, None)
             game_world.add_collision_pair('block:bomb', None, bomb)
+            game_world.add_collision_pair('bomb:box', bomb, None)
             self.bombCount -= 1
         elif self.bombCount == 0:
             pass

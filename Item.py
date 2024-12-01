@@ -28,7 +28,7 @@ class Item:
 
 
     def get_bb(self):
-        return self.x - 25, self.y -25, self.x + 25, self.y+25
+        return self.x - 15, self.y -15, self.x + 15, self.y+15
 
     def handle_collision(self, group, other):
         if group == 'item:hero':
