@@ -126,7 +126,7 @@ class Character:
         return sx - 30, sy - 40, sx + 30, sy + 40  # 박스 높이 조정
 
     def handle_collision(self, group, other):
-        if group == 'hero:npc_snake' and not self.is_invincible:
+        if group.startswith('hero:npc_') and not self.is_invincible:
             if self.hp > 1:
                 self.hp -= 1
                 self.is_invincible = True
