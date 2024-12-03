@@ -55,7 +55,7 @@ def init(stage):
 
 
     # w, h, xPos, yPos
-    block_positions = [(100, 50, 1000, 200), (200, 50, 300, 200), (100, 50, 650, 300)]
+    block_positions = [(100, 50, 1000, 200), (100, 50, 300, 200), (100, 50, 650, 300)]
     server.blocks = [Block(width, height, x, y) for width, height, x, y in block_positions]
 
     for block in server.blocks:

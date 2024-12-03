@@ -23,6 +23,7 @@ class Idle:
     @staticmethod
     def enter(hero, e):
         hero.is_moving = False
+        hero.speed =0
         if a_up(e) or d_down(e) :
             hero.face_dir = -1
 
@@ -61,6 +62,7 @@ class Idle:
 class Walk:
     @staticmethod
     def enter(hero, e):
+        hero.speed = RUN_SPEED_PPS
         hero.action = 1
         hero.is_moving = True
         if d_down(e) or a_up(e):
@@ -68,7 +70,6 @@ class Walk:
 
         if a_down(e) or d_up(e):
             hero.dir = -1
-
 
 
     @staticmethod
@@ -155,6 +156,7 @@ class Sleep:
 class Sit:
     @staticmethod
     def enter(hero, e):
+         hero.speed = 0
          hero.action = 2
          hero.is_moving = False
 
@@ -220,6 +222,7 @@ class Attack:   #(4, 5, 8frame)
 class Attacked:
     @staticmethod
     def enter(hero, e):
+        hero.speed = 0
         hero.frame = 0
         hero.start_time = get_time()
         hero.is_moving = False
@@ -267,6 +270,8 @@ class Attacked:
 class Ladder:
     @staticmethod
     def enter(hero, e):
+        hero.speed = 0
+        hero.vy = 0
         if w_down(e):
             hero.frame = 0
             hero.up = 1

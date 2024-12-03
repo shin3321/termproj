@@ -10,6 +10,16 @@ from background import *
 from statemachine import *
 import server
 
+PIXEL_PER_METER = (10.0 / 0.3)  # 10 pixel 30 cm
+RUN_SPEED_KMPH = 40.0  # Km / Hour
+RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
+RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
+RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
+
+TIME_PER_ACTION = 0.5
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 8
+
 class Character:
     def __init__(self):
         self.frame = 0
@@ -94,6 +104,7 @@ class Character:
         )
 
     def update(self):
+        self.state_machine.update()
         if not self.on_ground:
             self.vy += self.gravity * game_framework.frame_time
             self.y += self.vy * game_framework.frame_time
@@ -101,7 +112,7 @@ class Character:
         elif self.on_ground:
             self.vy = 0
 
-        self.state_machine.update()
+
 
         # if self.y < server.block.height:  # 바닥 y 좌표
         #     self.y = 60
@@ -114,6 +125,9 @@ class Character:
 
 
     def draw(self):
+        sx = self.x - server.background.window_left
+
+        sy = self.y - server.background.window_bottom
         self.font.draw(self.x + 50, self.y + 50, f'{self.hp:02d}, {self.bombCount:02d}', (255, 255, 0))
 
         draw_rectangle(*self.get_bb())
@@ -165,9 +179,6 @@ class Character:
 
         else:
             self.state_machine.add_event(('exit_ladder', 0))
-
-
-            pass
 
     def bounce_back(self):
         if self.bounce_count > 0:

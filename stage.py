@@ -19,7 +19,6 @@ class Block:
         self.image = load_image('img/1Tileset.png')
 
     def draw(self):
-        # 충돌 영역 그리기 (디버깅용)
         draw_rectangle(*self.get_bb())
 
         if self.is_background:  # 배경 블록 처리
