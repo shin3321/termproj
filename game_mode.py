@@ -2,6 +2,7 @@ from random import randint
 
 from pico2d import *
 import random
+import importlib
 
 import game_framework
 import game_world
@@ -12,21 +13,44 @@ from NPC import *
 import server
 import random
 
-from stage import Block, Arrow, Ladder, Box
+from stage1 import Block, Arrow, Ladder, Box, Door
+from stage2 import Block, Ladder, Box
+
+
+center_x = screen_width/2
+center_y = screen_height/2
+
+
+def load_stage(stage_number):
+    stage_module_name = f"stage{stage_number}"
+    stage_module = importlib.import_module(stage_module_name)
+
+    Block = getattr(stage_module, "Block")
+    Ladder = getattr(stage_module, "Ladder")
+    Box = getattr(stage_module, "Box")
+
+    return Block, Ladder, Box
 
 stage_config = {
     1: {
+        "module": "stage1",
+        "background": "Background1",
         "npcs": [NPC_snake, NPC_bat],
-        "npc_pos":[(300, 150), (600, 250), (800, 350)]
+        "npc_positions": [(300, 150), (600, 250), (800, 350)]
     },
     2: {
+        "module": "stage2",
+        "background": "Background1",
         "npcs": [NPC_snail, NPC_mini_frog],
         "npc_positions": [(300, 150), (600, 250), (800, 350)],
     }
 }
 
-center_x = screen_width/2
-center_y = screen_height/2
+
+def remove_all_npcs():
+    for npc in server.npcs:
+        game_world.remove_obj(npc)  # 게임 월드에서 NPC 제거
+    server.npcs.clear()
 
 def handle_events():
     global running
@@ -37,6 +61,9 @@ def handle_events():
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
             #game_framework.change_mode(title_mode)
             pass
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:  # P키 입력 처리
+            print("Cheat Code Activated! Removing all NPCs...")
+            remove_all_npcs()  # NPC 모두 제거
         else:
             server.hero.handle_event(event)
 
@@ -45,8 +72,16 @@ def init(stage):
     global Running
 
     Running = True
-    server.background = Background()
+    config = stage_config[stage]
+    stage_module = importlib.import_module(config["module"])
+
+    background_class_name = config["background"]
+    background_module = importlib.import_module("background")  # 백그라운드.py 모듈 import
+    background_class = getattr(background_module, background_class_name)  # 클래스 가져오기
+    server.background = background_class()  # 인스턴스 생성
     game_world.add_obj(server.background, 0)
+
+    Block, Ladder, Box = load_stage(stage)
 
     server.block = Block(world_width, 60, world_width // 2, 10, is_background=True)
     game_world.add_obj(server.block, 0)
@@ -69,7 +104,7 @@ def init(stage):
         game_world.add_collision_pair('box:whip', box, None)
         game_world.add_collision_pair('bomb:box', None, box)
 
-    ladder_positions = [(900, 100), (200, 100), (550, 200)]
+    ladder_positions = [(900, 110), (200, 110), (550, 210)]
     server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
         game_world.add_obj(ladder, 0)
@@ -85,42 +120,13 @@ def init(stage):
     arrow = Arrow()
     game_world.add_obj(arrow, 1)
 
-
-    # global npc_snake
-    # global npc_batd
-    # global npc_snail
-
     init_npcs(stage)
-
-    # npc_snakes = [NPC_snake(random.randint(700, 1600-100), 60) for _ in range(10)]
-    # game_world.add_objects(npc_snakes, 0)
-    # for npc_snake in npc_snakes:
-    #     game_world.add_collision_pair('hero:npc_snake', None, npc_snake)
-    #     game_world.add_collision_pair('whip:npc_snake', None, npc_snake)
-    #     game_world.add_collision_pair('bomb:npc_snake', None, npc_snake)
-    #
-
-
-    # npc_bats = [NPC_bat(random.randint(100, 1600-100), 60) for _ in range(10)]
-    # game_world.add_objects(npc_bats, 0)
-    # for npc_bat in npc_bats:
-    #     game_world.add_collision_pair('hero:npc_bat', None, npc_bat)
-    #     game_world.add_collision_pair('whip,npc_snake', None, npc_bat)
-    # game_world.add_collision_pair('hero:npc_bat', server.hero, None)
-    #
-    # npc_snails = [NPC_snail(random.randint(100, 1600 - 100), 60) for _ in range(10)]
-    # game_world.add_objects(npc_snails, 0)
-    #
-    # for npc_snail in npc_snails:
-    #     game_world.add_collision_pair('hero:npc_snail', None, npc_snail)
-    #     game_world.add_collision_pair('whip,npc_snake', None, npc_snail)
-    # game_world.add_collision_pair('hero:npc_snail', server.hero, None)
 
 def init_npcs(stage):
     config = stage_config[stage]
 
     npcs = config["npcs"]  # 현재 스테이지에서 등장할 NPC 클래스 리스트
-    npc_positions = config["npc_pos"]  # NPC 위치 리스트
+    npc_positions = config["npc_positions"]  # NPC 위치 리스트
 
     server.npcs = []
     for i, pos in enumerate(npc_positions):
@@ -133,15 +139,35 @@ def init_npcs(stage):
         game_world.add_collision_pair(f'hero:npc_{npc_class.__name__.lower()}', server.hero, npc)
         game_world.add_collision_pair(f'whip:npc_{npc_class.__name__.lower()}', None, npc)
 
+hero_state = {}
 
-def next_stage(current_stage):
+def save_hero_state(hero):
+    hero_state['hp'] = server.hero.hp
+    hero_state['bomb_count'] = server.hero.bombCount
+
+def load_hero_state(hero):
+    server.hero.hp =  hero_state['hp']
+    server.hero.bombCount = hero_state['bomb_count']
+
+def next_stage(current_stage,hero):
     if current_stage == 1:
+        save_hero_state(hero)
         init(2)  # 스테이지 2로 전환
+        load_hero_state(hero)
     elif current_stage == 2:
-        print("Game Over or Loop to Stage 1")
+        game_framework.change_mode(title_mode)
+
+
+def check_npc_clear():
+    if not server.npcs:
+        # NPC가 모두 제거되었으면 문을 생성
+        door = Door(400, 100)  # 문 위치 설정
+        game_world.add_obj(door, 0)  # 게임 월드에 문 추가
+        game_world.add_collision_pair('hero:door', server.hero, door)
 
 
 def finish():
+    check_npc_clear()
     game_world.clear()
     pass
 
@@ -157,6 +183,8 @@ def update():
     game_world.update(server.hero.x, server.hero.y)
     handle_collisions()
     delay(0.01)
+    check_npc_clear()
+
 
 
 def draw():

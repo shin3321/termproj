@@ -43,7 +43,7 @@ def run(start_mode):
     global running, stack
     running = True
     stack = [start_mode]
-    start_mode.init(1)
+    start_mode.init(2)
 
     global frame_time
     frame_time = 0.0

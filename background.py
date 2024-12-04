@@ -24,7 +24,7 @@ back_wid, back_height = 200, 400
 #             background.clip_draw(0, 644, 508, 892, x - cx + screen_width // 2, y - cy + screen_height // 2, back_wid,
 #                                  back_height)
 
-class Background():
+class Background1():
     def __init__(self):
         self.image =  load_image('img/lv1backgrounds.png')
         self.cw = get_canvas_width()
@@ -49,6 +49,30 @@ class Background():
     def clear(self):
         pass
 
+class Background2():
+    def __init__(self):
+        self.image =  load_image('img/lv1backgrounds.png')
+        self.cw = get_canvas_width()
+        self.ch = get_canvas_height()
+        self.w = self.image.w
+        self.h = self.image.h
+
+        pass
+
+
+    def draw(self):
+        for x in range(0, self.cw, self.w):
+            for y in range(0, self.ch, self.h):
+                self.image.draw_to_origin(x, y)
+
+    def update(self):
+        self.window_left = clamp(0, int(server.hero.x) - self.cw // 2, self.w - self.cw - 1)
+        self.window_bottom = clamp(0, int(server.hero.y) - self.ch // 2, self.h - self.ch - 1)
+        pass
+
+
+    def clear(self):
+        pass
 # class TileBackGround:
 #     def __init__(self):
 #         self.cw = get_canvas_width()

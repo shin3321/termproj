@@ -1,5 +1,6 @@
 from pico2d import *
 
+import game_mode
 import game_world
 import server
 from Item import Item
@@ -44,7 +45,7 @@ class Block:
             return (self.xPos - self.width,
                     self.yPos,
                     self.xPos + self.width ,
-                    self.yPos + self.height / 2)
+                    self.yPos  )
 
     def handle_collision(self, group, other):
         pass
@@ -154,3 +155,25 @@ class Box:
     def get_bb(self):
         return (self.x - 30, self.y - 30, self.x+30, self.y +30)
         pass
+
+class Door:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+        self.image = load_image('img/Dwelling_Tiles.png')  # 문 이미지 파일 경로 (이미지 추가 필요)
+        self.width = self.image.w
+        self.height = self.image.h
+
+    def update(self):
+        pass
+
+    def draw(self):
+        draw_rectangle(*self.get_bb())
+        self.image.clip_draw(0, 0, 360, 320, self.x, self.y)
+
+    def get_bb(self):
+        return self.x -10, self.y - 10, self.x + 10, self.y + 10
+
+    def handle_collision(self, group, other):
+        if group == 'hero:door':
+            game_mode.next_stage(1, other)

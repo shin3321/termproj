@@ -1,3 +1,5 @@
+from time import sleep
+
 from pico2d import *
 import random
 
@@ -8,7 +10,7 @@ from server import hero
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 PIXEL_PER_METER = (10.0 / 0.3)
-RUN_SPEED_KMPH = 5.0  # Km / Hour
+RUN_SPEED_KMPH = 1.0  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
@@ -221,24 +223,47 @@ class NPC_snail:
     def __init__(self, x = 400, y = 60):
         self.x, self.y = random.randint(0, 400), random.randint(0, 400)
         self.i_x = 80
-        self.i_y = 81
+        self.i_y = 80
         self.frame = 0
+        self.speed = 0.5
+        self.move_x = 1
+        self.action = 3
+        self.dir = 1
+        self.range = 25
         self.image = load_image('img/snail.png') #85,85
-        self.hp = 50
-
+        self.min_x = self.x - self.range  # 최소 x 좌표
+        self.max_x = self.x + self.range  # 최대 x 좌표
 
     def update(self):
-        self.frame = (self.frame + 1) % 11
+
+        self.frame = (
+                (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 11)
+
+        # x 좌표 자동 이동
+        self.x += self.speed * self.dir
+
+        # 경계 확인 및 방향 전환
+        if self.x <= self.min_x:  # 최소 경계
+            self.x = self.min_x
+            self.dir = 1  # 오른쪽으로 방향 전환
+        elif self.x >= self.max_x:  # 최대 경계
+            self.x = self.max_x
+            self.dir = -1
+
         pass
 
+
     def draw(self):
-        self.image.clip_draw(self.frame * self.i_x, 0, self.i_x, self.i_y, self.x, self.y, 80, 80)
+        if self.dir == 1:
+            self.image.clip_draw(int(self.frame) * self.i_x, 0, self.i_x, self.i_y, self.x, self.y, 75, 75)
+        else:
+            self.image.clip_composite_draw(int(self.frame) * self.i_x, 0, self.i_x, self.i_y, 0, 'h', self.x, self.y, 75, 75)
         draw_rectangle(*self.get_bb())
         pass
 
     def get_bb(self):
         # fill here
-        return self.x - 50, self.y - 50, self.x + 50, self.y + 50
+        return self.x - 25, self.y - 25, self.x + 25, self.y + 25
         pass
 
     def handle_collision(self, group, other):
@@ -249,17 +274,128 @@ class NPC_mini_frog:
     def __init__(self, x = 400, y = 60):
         self.x, self.y = random.randint(0, 400), random.randint(0, 400)
         self.i_x = 81
-        self.i_y = 70
-        self.frame = 5
-        self.image = load_image('img/Snakes.png') #85,85
-        self.hp = 50
-
+        self.i_y = 92
+        self.frame = 0
+        self.image = load_image('img/PC Computer - Spelunky - Frogs.png')  # 이미지 로드
+        self.direction = 1  # 초기 방향 (1: 오른쪽, -1: 왼쪽)
+        self.jump_count = 0
+        self.max_jumps = 2
+        self.jump_distance = 100  # 점프 거리
+        self.is_jumping = False
+        self.is_landing = False  # 착지 상태 여부
+        self.landing_time = 2.0  # 착지 상태 지속 시간 (초)
+        self.landing_timer = 0.0  # 착지 상태 타이머
+        self.jump_speed = 300.0  # 초기 점프 속도 (픽셀/초)
+        self.gravity = -600.0  # 중력 가속도 (픽셀/초^2)
+        self.vertical_speed = 0.0
+        self.state = "jumping"  # 초기 상태
+        self.move_phase = 0  # 이동 단계 (0: 점프, 1-2: 오른쪽, 3-4: 왼쪽)
+        self.move_timer = 0.0  # 이동 타이머
 
     def update(self):
-        self.frame = (self.frame + 1) % 7
+        # 상태에 따라 동작을 분기
+        if self.state == "jumping":
+            self.handle_jump()
+        elif self.state == "resting":
+            self.handle_rest()
+        elif self.state == "moving_right":
+            self.handle_move(direction=1)
+        elif self.state == "moving_left":
+            self.handle_move(direction=-1)
 
-        pass
+        # 프레임 애니메이션 업데이트
+        if not self.is_landing:
+            self.frame = (self.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
+
+    def handle_jump(self):
+        if not self.is_jumping:
+            # 점프 시작
+            self.is_jumping = True
+            self.vertical_speed = self.jump_speed
+
+        # 점프 동작: Y축 이동 및 중력 적용
+        self.vertical_speed += self.gravity * game_framework.frame_time
+        self.y += self.vertical_speed * game_framework.frame_time
+
+        # X축 이동
+        if self.jump_count < self.max_jumps:
+            self.x += self.direction * self.jump_distance * game_framework.frame_time
+
+        # 땅에 닿으면 착지 상태로 전환
+        if self.y <= server.block.yPos + server.block.height/2+ 20:
+            self.y = server.block.yPos + server.block.height/2 + 15
+            self.is_jumping = False
+            self.is_landing = True
+            self.landing_timer = self.landing_time
+            self.vertical_speed = 0.0
+            self.state = "resting"
+
+    def handle_rest(self):
+        # 착지 상태 유지
+        self.landing_timer -= game_framework.frame_time
+        if self.landing_timer <= 0:
+            self.is_landing = False
+            # 이동 단계에 따라 상태 변경
+            if self.move_phase < 2:
+                self.state = "moving_right"
+            elif self.move_phase < 4:
+                self.state = "moving_left"
+            else:
+                self.move_phase = -1  # 초기화
+                self.direction *= -1  # 방향 전환
+                self.state = "jumping"
+            self.move_phase += 1
+
+    def handle_move(self, direction):
+        if not self.is_jumping:
+            # 점프 시작
+            self.is_jumping = True
+            self.vertical_speed = self.jump_speed
+            self.direction = direction
+
+        # 점프 동작: Y축 이동 및 중력 적용
+        self.vertical_speed += self.gravity * game_framework.frame_time
+        self.y += self.vertical_speed * game_framework.frame_time
+
+        # X축 이동
+        self.x += self.direction * self.jump_distance * game_framework.frame_time
+
+        # 땅에 닿으면 착지 상태로 전환
+        if self.y <= server.block.yPos+20:
+            self.y = server.block.yPos + server.block.height/2+ 15
+            self.is_jumping = False
+            self.is_landing = True
+            self.landing_timer = self.landing_time
+            self.vertical_speed = 0.0
+            self.state = "resting"
 
     def draw(self):
-        self.image.clip_draw(self.frame * self.i_x, self.i_y, self.i_x, self.i_y, self.x, self.y, 80, 80)
+        draw_rectangle(*self.get_bb())
+        if self.is_jumping and self.direction == 1:
+            self.image.clip_draw(4 * self.i_x, 0, 81, self.i_y, self.x, self.y, 80, 80)
+        elif not self.is_jumping and self.direction == 1:
+            self.image.clip_draw(int(self.frame)*self.i_x, 0, 81, self.i_y, self.x, self.y, 80, 80)
+
+        elif self.is_jumping and self.direction == -1:
+            self.image.clip_composite_draw(4 * self.i_x, 0, 81, self.i_y, 0, 'h', self.x,  self.y, 80, 80)
+        else:
+            self.image.clip_composite_draw(int(self.frame)*self.i_x, 0, 81, self.i_y, 0, 'h',self.x, self.y, 80, 80)
+
+
+
+    def get_bb(self):
+        return self.x - 20, self.y - 20, self.x + 20, self.y + 20
+
+    def handle_collision(self, group, other):
+        # if group == 'hero:snake':
+        #     other.hp -= 1
+        #     other.is_invincible = True
+        #     other.invincible_time = 2.0
+        #     other.image_alpha = 128
+        #     other.bounce_count = 3
+        #     other.state_machine.add_event(('CHANGE', 0))
+        if group == 'whip:npc_snake':
+            if self in game_world.world[0]:
+                game_world.remove_obj(self)
+
         pass
