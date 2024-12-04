@@ -67,12 +67,13 @@ def handle_events():
         else:
             server.hero.handle_event(event)
 
-def init(stage):
+def init(stage_number=None):
 
     global Running
 
+    stage_number = server.stage_number
     Running = True
-    config = stage_config[stage]
+    config = stage_config[stage_number]
     stage_module = importlib.import_module(config["module"])
 
     background_class_name = config["background"]
@@ -81,7 +82,7 @@ def init(stage):
     server.background = background_class()  # 인스턴스 생성
     game_world.add_obj(server.background, 0)
 
-    Block, Ladder, Box = load_stage(stage)
+    Block, Ladder, Box = load_stage(stage_number)
 
     server.block = Block(world_width, 60, world_width // 2, 10, is_background=True)
     game_world.add_obj(server.block, 0)
@@ -119,11 +120,10 @@ def init(stage):
 
     arrow = Arrow()
     game_world.add_obj(arrow, 1)
+    init_npcs(stage_number)
 
-    init_npcs(stage)
-
-def init_npcs(stage):
-    config = stage_config[stage]
+def init_npcs(stage_number):
+    config = stage_config[stage_number]
 
     npcs = config["npcs"]  # 현재 스테이지에서 등장할 NPC 클래스 리스트
     npc_positions = config["npc_positions"]  # NPC 위치 리스트
@@ -150,18 +150,22 @@ def load_hero_state(hero):
     server.hero.bombCount = hero_state['bomb_count']
 
 def next_stage(current_stage,hero):
-    if current_stage == 1:
-        save_hero_state(hero)
-        init(2)  # 스테이지 2로 전환
+    save_hero_state(hero)
+    new_stage_number = current_stage + 1
+    if new_stage_number in stage_config:
+        game_framework.change_mode(stage_module, stage_number=new_stage_number)
         load_hero_state(hero)
-    elif current_stage == 2:
+    else:
         game_framework.change_mode(title_mode)
 
 
-def check_npc_clear():
+def check_npc_clear(stage):
     if not server.npcs:
-        # NPC가 모두 제거되었으면 문을 생성
+        config = stage_config[stage]
+        stage_module = importlib.import_module(config["module"])
+        DoorClass = getattr(stage_module, "Door")
         door = Door(400, 100)  # 문 위치 설정
+
         game_world.add_obj(door, 0)  # 게임 월드에 문 추가
         game_world.add_collision_pair('hero:door', server.hero, door)
 
@@ -183,7 +187,7 @@ def update():
     game_world.update(server.hero.x, server.hero.y)
     handle_collisions()
     delay(0.01)
-    check_npc_clear()
+    check_npc_clear(server.stage_number)
 
 
 
