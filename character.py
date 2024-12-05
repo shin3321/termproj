@@ -167,7 +167,6 @@ class Character:
                 self.on_ground = False
 
         if not group == 'block:hero':
-            print(f'{self.on_ground}')
             self.on_ground = False
 
         if group == 'ladder:hero':

@@ -158,6 +158,7 @@ class Box:
 
 class Door:
     def __init__(self, x, y):
+        print('create door')
         self.x = x
         self.y = y
         self.image = load_image('img/Dwelling_Tiles.png')  # 문 이미지 파일 경로 (이미지 추가 필요)
@@ -176,4 +177,8 @@ class Door:
 
     def handle_collision(self, group, other):
         if group == 'hero:door':
+            remove_obj(self)
+            #game_mode.finish()
+            print('door')
             game_mode.next_stage(1, other)
+

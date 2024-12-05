@@ -7,6 +7,8 @@ from Item import Item
 from background import world_width
 
 img_size = 128
+# def init(stage_num):
+#     game_mode.init(stage_num)
 
 class Block:
     def __init__(self, width, height, xPos, yPos, is_background=False):
@@ -15,7 +17,7 @@ class Block:
         self.width = width
         self.height = height
         self.is_background = is_background
-        self.image = load_image('img/Jungle_Tiles.png')
+        self.image = load_image('img/lv2block.png')
 
     def draw(self):
         draw_rectangle(*self.get_bb())
@@ -24,14 +26,15 @@ class Block:
             num_copies = int(world_width / 255) + 1
             for i in range(num_copies):
                 x_position = i * 255
-                self.image.clip_draw(0, img_size*5, 255, self.height, x_position, self.yPos)
+                self.image.clip_draw(0, 0, 255, self.height, x_position, self.yPos)
 
             num_copies = int(world_width / 60) + 1
             for i in range(num_copies):
                 x_position = i * 60
-                self.image.clip_draw(img_size*5, img_size*5, 60, 50, x_position, self.height - 10)
+                self.image.clip_draw(64*5, 64 *7, 60, 50, x_position, self.height - 20)
         else:
-            self.image.clip_draw(0, img_size*9, 255, self.height, self.xPos, self.yPos)
+            self.image.clip_draw(0, 0, 255, self.height, self.xPos, self.yPos)
+            #self.image.clip_draw(64 * 5, 64 * 7, 60, 50, self.xPos, self.yPos + self.height/2)
 
     def update(self):
         pass
@@ -111,9 +114,10 @@ class Box:
 
 class Door:
     def __init__(self, x, y):
-        self.x = x
+        print('door')
+        self.x = 500
         self.y = y
-        self.image = load_image('img/Jungle_Tiles.png')  # 문 이미지 파일 경로 (이미지 추가 필요)
+        self.image = load_image('img/Jungle_Tiles.png')
         self.width = self.image.w
         self.height = self.image.h
 
@@ -125,4 +129,4 @@ class Door:
 
     def handle_collision(self, group, other):
         if group == 'hero:door' and isinstance(other, server.hero):
-            game_mode.next_stage(3, other)  # 문에 닿으면 스테이지 2로 전환 (여기서 '2'는 다음 스테이지 번호)
+            game_mode.next_stage(2, other)

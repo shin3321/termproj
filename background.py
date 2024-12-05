@@ -31,6 +31,8 @@ class Background1():
         self.ch = get_canvas_height()
         self.w = self.image.w
         self.h = self.image.h
+        self.window_left = 0
+        self.window_bottom = 0
 
         pass
 
@@ -51,11 +53,13 @@ class Background1():
 
 class Background2():
     def __init__(self):
-        self.image =  load_image('img/lv1backgrounds.png')
+        self.image =  load_image('img/2Jungle_Tiles.png')
         self.cw = get_canvas_width()
         self.ch = get_canvas_height()
         self.w = self.image.w
         self.h = self.image.h
+        self.window_left = 0
+        self.window_bottom = 0
 
         pass
 

@@ -10,7 +10,7 @@ def change_mode(mode, *args, **kwargs):
         stack[-1].finish()
         stack.pop()
     stack.append(mode)
-    mode.init()
+    mode.init(*args, **kwargs)
 
 
 def push_mode(mode):

@@ -6,4 +6,5 @@ blocks = None
 npcs = None
 boxs = None
 
-stage_number = 1
+stage_number = 2
+door = None

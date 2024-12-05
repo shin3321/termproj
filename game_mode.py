@@ -13,6 +13,7 @@ from NPC import *
 import server
 import random
 
+from game_world import remove_obj
 from stage1 import Block, Arrow, Ladder, Box, Door
 from stage2 import Block, Ladder, Box
 
@@ -40,7 +41,7 @@ stage_config = {
     },
     2: {
         "module": "stage2",
-        "background": "Background1",
+        "background": "Background2",
         "npcs": [NPC_snail, NPC_mini_frog],
         "npc_positions": [(300, 150), (600, 250), (800, 350)],
     }
@@ -62,14 +63,15 @@ def handle_events():
             #game_framework.change_mode(title_mode)
             pass
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:  # P키 입력 처리
-            print("Cheat Code Activated! Removing all NPCs...")
             remove_all_npcs()  # NPC 모두 제거
         else:
             server.hero.handle_event(event)
 
 def init(stage_number=None):
-
+    print(f"Initializing Stage {stage_number}")
     global Running
+
+    finish()
 
     stage_number = server.stage_number
     Running = True
@@ -77,9 +79,9 @@ def init(stage_number=None):
     stage_module = importlib.import_module(config["module"])
 
     background_class_name = config["background"]
-    background_module = importlib.import_module("background")  # 백그라운드.py 모듈 import
-    background_class = getattr(background_module, background_class_name)  # 클래스 가져오기
-    server.background = background_class()  # 인스턴스 생성
+    background_module = importlib.import_module("background")
+    background_class = getattr(background_module, background_class_name)
+    server.background = background_class()
     game_world.add_obj(server.background, 0)
 
     Block, Ladder, Box = load_stage(stage_number)
@@ -123,6 +125,7 @@ def init(stage_number=None):
     init_npcs(stage_number)
 
 def init_npcs(stage_number):
+    print(f'{stage_number}')
     config = stage_config[stage_number]
 
     npcs = config["npcs"]  # 현재 스테이지에서 등장할 NPC 클래스 리스트
@@ -149,34 +152,36 @@ def load_hero_state(hero):
     server.hero.hp =  hero_state['hp']
     server.hero.bombCount = hero_state['bomb_count']
 
-def next_stage(current_stage,hero):
+def next_stage(current_stage, hero):
     save_hero_state(hero)
-    new_stage_number = current_stage + 1
-    if new_stage_number in stage_config:
-        game_framework.change_mode(stage_module, stage_number=new_stage_number)
-        load_hero_state(hero)
-    else:
-        game_framework.change_mode(title_mode)
+    server.stage_number += 1
+    print(f'{server.stage_number}')
 
+    if server.stage_number in stage_config:
+        new_stage_module = importlib.import_module(stage_config[server.stage_number]["module"])
+        init(server.stage_number)
+        load_hero_state(hero)  # 영웅 상태 로드
+    #else:
+        #game_framework.change_mode(title_mode)
 
 def check_npc_clear(stage):
-    if not server.npcs:
+    if not server.npcs and server.door is None:
         config = stage_config[stage]
         stage_module = importlib.import_module(config["module"])
         DoorClass = getattr(stage_module, "Door")
         door = Door(400, 100)  # 문 위치 설정
 
+        server.door = door
         game_world.add_obj(door, 0)  # 게임 월드에 문 추가
         game_world.add_collision_pair('hero:door', server.hero, door)
 
 
 def finish():
-    check_npc_clear()
     game_world.clear()
     pass
 
 def handle_collisions():
-    for group, pairs in game_world.collision_pairs.items():
+    for group, pairs in list(game_world.collision_pairs.items()):
         for a in pairs[0]:
             for b in pairs[1]:
                 if game_world.collide(a, b):
@@ -188,7 +193,6 @@ def update():
     handle_collisions()
     delay(0.01)
     check_npc_clear(server.stage_number)
-
 
 
 def draw():
