@@ -11,12 +11,12 @@ img_size = 128
 
 
 class Block:
-    def __init__(self, width, height, xPos, yPos, is_background=False,):
+    def __init__(self, width, height, xPos, yPos, is_bg,):
         self.xPos = xPos
         self.yPos = yPos
         self.width = width
         self.height = height
-        self.is_background = is_background
+        self.is_background = is_bg
         self.image = load_image('img/1Tileset.png')
 
     def draw(self):

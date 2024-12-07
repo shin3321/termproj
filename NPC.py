@@ -225,11 +225,11 @@ class NPC_bat:
 
 class NPC_snail:
     def __init__(self, x = 400, y = 60):
-        self.x, self.y = random.randint(0, 400), random.randint(0, 400)
+        self.x, self.y = x, y
         self.i_x = 80
         self.i_y = 80
         self.frame = 0
-        self.speed = 0.5
+        self.speed = 0.2
         self.move_x = 1
         self.action = 3
         self.dir = 1
@@ -275,8 +275,8 @@ class NPC_snail:
         pass
 
 class NPC_mini_frog:
-    def __init__(self, x = 400, y = 60):
-        self.x, self.y = random.randint(0, 400), random.randint(0, 400)
+    def __init__(self, x , y):
+        self.x, self.y = x, y
         self.i_x = 81
         self.i_y = 92
         self.frame = 0
@@ -346,10 +346,12 @@ class NPC_mini_frog:
             elif self.move_phase < 4:
                 self.state = "moving_left"
             else:
+                print(f'{self.move_phase}')
                 self.move_phase = -1  # 초기화
                 self.direction *= -1  # 방향 전환
                 self.state = "jumping"
             self.move_phase += 1
+            print(f'{self.move_phase}')
 
     def handle_move(self, direction):
         if not self.is_jumping:
@@ -367,7 +369,7 @@ class NPC_mini_frog:
 
         # 땅에 닿으면 착지 상태로 전환
         for block in server.block:  # 모든 블록 탐색
-            if self.y <= block.yPos+20 and self.x >=  block.xPos - block.width and self.x >= block.xPos + block.width :
+            if self.y <= block.yPos+10 and self.x >=  block.xPos - block.width and self.x >= block.xPos + block.width :
                 self.y = block.yPos + block.height/2+ 15
                 self.is_jumping = False
                 self.is_landing = True
@@ -380,12 +382,13 @@ class NPC_mini_frog:
         if self.is_jumping and self.direction == 1:
             self.image.clip_draw(4 * self.i_x, 0, 81, self.i_y, self.x, self.y, 80, 80)
         elif not self.is_jumping and self.direction == 1:
-            self.image.clip_draw(int(self.frame)*self.i_x, 0, 81, self.i_y, self.x, self.y, 80, 80)
+            self.image.clip_draw(2*self.i_x, 0, 81, self.i_y, self.x, self.y, 80, 80)
 
         elif self.is_jumping and self.direction == -1:
             self.image.clip_composite_draw(4 * self.i_x, 0, 81, self.i_y, 0, 'h', self.x,  self.y, 80, 80)
         else:
-            self.image.clip_composite_draw(int(self.frame)*self.i_x, 0, 81, self.i_y, 0, 'h',self.x, self.y, 80, 80)
+            print('landing')
+            self.image.clip_composite_draw(2*self.i_x, 0, 81, self.i_y, 0, 'h',self.x, self.y, 80, 80)
 
 
 

@@ -11,12 +11,12 @@ img_size = 128
 #     game_mode.init(stage_num)
 
 class Block:
-    def __init__(self, width, height, xPos, yPos, is_background=False):
+    def __init__(self, width, height, xPos, yPos, is_bg):
         self.xPos = xPos
         self.yPos = yPos
         self.width = width
         self.height = height
-        self.is_background = is_background
+        self.is_background = is_bg
         self.image = load_image('img/lv2block.png')
 
     def draw(self):
@@ -44,7 +44,7 @@ class Block:
             return 0, 0, world_width + 50, self.height - 15
         else:
             return (self.xPos - self.width,
-                    self.yPos - self.height/2,
+                    self.yPos - self.height/4,
                     self.xPos + self.width,
                     self.yPos + self.height/2)
 

@@ -44,7 +44,7 @@ stage_config = {
         "module": "stage2",
         "background": "Background2",
         "npcs": [NPC_snail, NPC_mini_frog],
-        "npc_positions":  [(300, 250), (600, 250), (750, 350)],
+        "npc_positions":  [(300, 250), (800, 350), (600, 350)],
     }
 }
 
@@ -90,7 +90,7 @@ def init(stage_number=None):
 
     block_positions = [
         (world_width, 60, world_width // 2, 10, True),  # is_background 추가
-        (100, 50, 1000, 200, False),
+        (100, 50, 1000, 300, False),
         (100, 50, 300, 200, False),
         (100, 50, 650, 300, False)
     ]
@@ -193,7 +193,7 @@ def handle_collisions():
 def update():
     game_world.update(server.hero.x, server.hero.y)
     handle_collisions()
-#    delay(0.01)
+ #   delay(0.01)
     check_npc_clear(server.stage_number)
 
 

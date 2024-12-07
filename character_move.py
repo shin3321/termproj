@@ -129,7 +129,7 @@ class Jump:
 
             # 최대 점프 높이에 도달했을 때 속도 반전
             if hero.y >= hero.start_y + MAX_JUMP_HEIGHT:
-                hero.jump_velocity = -abs(hero.jump_velocity)  * 0.1 # 중력 적용
+                hero.jump_velocity = -abs(hero.jump_velocity) # 중력 적용
  # 하강으로 전환
 
         # 착지 처리
