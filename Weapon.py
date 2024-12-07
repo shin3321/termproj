@@ -112,7 +112,7 @@ class Bomb: #(1, 6)
                         self.handle_collision(group, obj)
 
     def handle_collision(self, group, other):
-        if group == 'bomb:npc_snake' or  group == 'bomb:box' :
+        if group == 'bomb:npc_' or  group == 'bomb:box' :
             if game_world.collide(self, other):
                 game_world.schedule_remove(other, 4)
         if group == 'block:bomb':

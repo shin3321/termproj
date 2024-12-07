@@ -13,6 +13,7 @@ from NPC import *
 import server
 import random
 
+from character_move import Idle
 from game_world import remove_obj
 from stage1 import Block, Arrow, Ladder, Box, Door
 from stage2 import Block, Ladder, Box
@@ -37,13 +38,13 @@ stage_config = {
         "module": "stage1",
         "background": "Background1",
         "npcs": [NPC_snake, NPC_bat],
-        "npc_positions": [(300, 150), (600, 250), (800, 350)]
+        "npc_positions": [(300, 250), (600, 250), (750, 350)]
     },
     2: {
         "module": "stage2",
         "background": "Background2",
         "npcs": [NPC_snail, NPC_mini_frog],
-        "npc_positions": [(300, 150), (600, 250), (800, 350)],
+        "npc_positions":  [(300, 250), (600, 250), (750, 350)],
     }
 }
 
@@ -86,17 +87,16 @@ def init(stage_number=None):
 
     Block, Ladder, Box = load_stage(stage_number)
 
-    server.block = Block(world_width, 60, world_width // 2, 10, is_background=True)
-    game_world.add_obj(server.block, 0)
-    game_world.add_collision_pair('block:hero', server.block, None)
-    game_world.add_collision_pair('block:bomb', server.block, None)
 
+    block_positions = [
+        (world_width, 60, world_width // 2, 10, True),  # is_background 추가
+        (100, 50, 1000, 200, False),
+        (100, 50, 300, 200, False),
+        (100, 50, 650, 300, False)
+    ]
+    server.block = [Block(width, height, x, y, is_bg) for width, height, x, y, is_bg in block_positions]
 
-    # w, h, xPos, yPos
-    block_positions = [(100, 50, 1000, 200), (100, 50, 300, 200), (100, 50, 650, 300)]
-    server.blocks = [Block(width, height, x, y) for width, height, x, y in block_positions]
-
-    for block in server.blocks:
+    for block in server.block:
         game_world.add_obj(block, 0)
         game_world.add_collision_pair('block:hero', block, None)
         game_world.add_collision_pair('block:bomb', block, None)
@@ -107,7 +107,7 @@ def init(stage_number=None):
         game_world.add_collision_pair('box:whip', box, None)
         game_world.add_collision_pair('bomb:box', None, box)
 
-    ladder_positions = [(900, 110), (200, 110), (550, 210)]
+    ladder_positions = [(900, 105), (200, 105), (550, 205)]
     server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
         game_world.add_obj(ladder, 0)
@@ -115,7 +115,6 @@ def init(stage_number=None):
 
     server.hero = Character()
     game_world.add_obj(server.hero, 1)
-    game_world.add_collision_pair('hero:npc_snake', server.hero, None)
     game_world.add_collision_pair('block:hero', None, server.hero)
     game_world.add_collision_pair('ladder:hero', None, server.hero)
     game_world.add_collision_pair('item:hero', None, server.hero)
@@ -138,9 +137,11 @@ def init_npcs(stage_number):
         server.npcs.append(npc)
         game_world.add_obj(npc, 0)  # 게임 월드에 추가
 
-        # 충돌 그룹 등록
         game_world.add_collision_pair(f'hero:npc_{npc_class.__name__.lower()}', server.hero, npc)
         game_world.add_collision_pair(f'whip:npc_{npc_class.__name__.lower()}', None, npc)
+        game_world.add_collision_pair(f'bomb:npc_{npc_class.__name__.lower()}', None, npc)
+
+
 
 hero_state = {}
 
@@ -151,11 +152,12 @@ def save_hero_state(hero):
 def load_hero_state(hero):
     server.hero.hp =  hero_state['hp']
     server.hero.bombCount = hero_state['bomb_count']
+    #server.hero.state_machine.start([Idle])
 
 def next_stage(current_stage, hero):
     save_hero_state(hero)
     server.stage_number += 1
-    print(f'{server.stage_number}')
+    remove_obj(server.hero)
 
     if server.stage_number in stage_config:
         new_stage_module = importlib.import_module(stage_config[server.stage_number]["module"])
@@ -191,7 +193,7 @@ def handle_collisions():
 def update():
     game_world.update(server.hero.x, server.hero.y)
     handle_collisions()
-    delay(0.01)
+#    delay(0.01)
     check_npc_clear(server.stage_number)
 
 

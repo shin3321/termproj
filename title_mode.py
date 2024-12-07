@@ -55,7 +55,7 @@ def handle_events():
 
 def draw():
     clear_canvas()
-    image.clip_draw(0, 0, 5, 5, center_x, center_y, screen_width, screen_height )
+    image.clip_draw(0, 0, 5, 5, center_x, center_y, screen_width, screen_height)
     image.clip_draw(53, 51, 196, 81,center_x, center_y+50, 784,  324)#53, 51 196, 81
     image.clip_draw(94, 8, 32, 16, center_x, 175, 128, 64)#32, 16// 94,8
     #image.clip_draw(7, 44, 32, 16, center_x, 150, 96, 48)

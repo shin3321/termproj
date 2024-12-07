@@ -43,9 +43,9 @@ class Block:
             return 0, 0, world_width + 50, self.height - 15
         else:
             return (self.xPos - self.width,
-                    self.yPos,
+                    self.yPos - self.height//2,
                     self.xPos + self.width ,
-                    self.yPos  )
+                    self.yPos + self.height//2 )
 
     def handle_collision(self, group, other):
         pass

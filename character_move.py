@@ -17,6 +17,8 @@ UP_SPEED_MPM = (UP_SPEED_KMPH * 1000.0 / 60.0)
 UP_SPEED_MPS = (UP_SPEED_MPM / 60.0)
 UP_SPEED_PPS =  UP_SPEED_MPS * PIXEL_PER_METER
 
+MAX_JUMP_HEIGHT = 100
+
 img_size = 128
 
 class Idle:
@@ -95,8 +97,10 @@ class Walk:
 class Jump:
     @staticmethod
     def enter(hero, e):
+        MAX_JUMP_HEIGHT = 20
         hero.jump_velocity = 10
         hero.is_jumping = True
+        hero.start_y = hero.y
         if space_down(e):
             pass
         if d_down(e):
@@ -114,17 +118,42 @@ class Jump:
         pass
     @staticmethod
     def do(hero):
-        hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
-        hero.y += hero.jump_velocity
-        hero.jump_velocity += hero.gravity
+        # 이동 및 점프 처리
+        if hero.is_jumping:
+            hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        if hero.y <= server.block.height + 25:
-            hero.on_ground = True
+        # 점프 처리
+        if hero.is_jumping:
+            hero.y += hero.jump_velocity
+            hero.jump_velocity -= hero.gravity * game_framework.frame_time  # 중력 적용
+
+            # 최대 점프 높이에 도달했을 때 속도 반전
+            if hero.y >= hero.start_y + MAX_JUMP_HEIGHT:
+                hero.jump_velocity = -abs(hero.jump_velocity)  * 0.1 # 중력 적용
+ # 하강으로 전환
+
+        # 착지 처리
+        closest_block_height = float('inf')
+        on_ground = False
+
+        for block in server.block:
+            # 블록과의 충돌 판별
+            if hero.y <= block.yPos + block.height and hero.y + 45 > block.yPos:
+                closest_block_height = min(closest_block_height, block.yPos + block.height)
+                on_ground = True
+
+        if on_ground and hero.y > closest_block_height:
+            hero.y = closest_block_height  # 착지 위치 조정
             hero.jump_velocity = 0
-            if hero.is_moving != False:  # 이동 중이면 Walk 상태
+            hero.on_ground = True
+            hero.is_jumping = False  # 점프 상태 종료
+
+            if hero.is_moving:
                 hero.state_machine.add_event(('WALK', 0))
-            else:  # 정지 상태면 Idle 상태
+            else:
                 hero.state_machine.add_event(('IDLE', 0))
+        else:
+            hero.on_ground = False
 
     @staticmethod
     def draw(hero):
@@ -302,6 +331,6 @@ class Ladder:
 
     @staticmethod
     def draw(hero):
-        hero.image.clip_draw(img_size * int(hero.frame), img_size * 10,
+        hero.image.clip_draw(img_size * int(hero.frame), img_size * 9,
                              img_size, img_size, hero.x, hero.y, 100, 100)
         pass

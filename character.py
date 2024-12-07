@@ -24,13 +24,13 @@ class Character:
     def __init__(self):
         self.frame = 0
         self.action = 1
-        self.hp = 1000
+        self.hp = 5
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time = 0
-        self.jump_velocity = 10
+        self.jump_velocity = 5
         self.jump_height = 20
-        self.gravity = -1
+        self.gravity = -0.5
         self.bombCount = 5
         self.velocity_x, self.velocity_y = 30, 30
         self.image = load_image('img/hero.png')#125,138
@@ -38,7 +38,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = 60
+        self.y = 80
         self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
@@ -87,7 +87,7 @@ class Character:
                        z_down: Attack,
                        space_down: Jump,
                        changeHp: Attacked,
-                       d_down: Jump, a_down: Jump,
+                       d_down: Walk, a_down: Walk,
                        d_up: Idle, a_up: Idle,
                        walk: Walk, idle: Idle
                         },
@@ -141,17 +141,22 @@ class Character:
 
     def handle_collision(self, group, other):
         if group.startswith('hero:npc_') and not self.is_invincible:
-            if self.hp > 1:
+            if self.hp >= 1:
                 self.hp -= 1
                 self.is_invincible = True
                 self.invincible_time = 2.0
                 self.image_alpha = 128
                 self.bounce_count = 5
                 self.state_machine.add_event(('CHANGE', 0))
-            # elif self.hp < 1:
-            #     self.hp = 5
-            #     #초기 상태로
-            #     pass
+            elif self.hp < 1:
+                #self.hp = 5
+                #self.bombCount = 0
+                server.stage_number = 1
+                game_world.remove_obj(server.hero)
+                #self.state_machine.start([Idle])
+                self.state_machine.add_event(('START', 0))
+                game_mode.init(server.stage_number)
+
 
         if group == 'block:hero':
             if self.vy < 0:
@@ -163,11 +168,10 @@ class Character:
             else:
                 self.on_ground = False
         else:
+            #print(f'{self.on_ground}')
             if not group.startswith('ladder:') and group.startswith('block:'):
                 self.on_ground = False
 
-        if not group == 'block:hero':
-            self.on_ground = False
 
         if group == 'ladder:hero':
             if abs(self.x - other.x) < 1.0:
@@ -177,17 +181,28 @@ class Character:
                 self.state_machine.add_event(('ladder', 0))
 
         else:
+            self.on_ground = True
             self.state_machine.add_event(('exit_ladder', 0))
 
     def bounce_back(self):
         if self.bounce_count > 0:
-            # 블록 위로 착지하기 위해 y좌표 조정
-            self.y = server.block.yPos + server.block.height // 2 + 50 # 블록의 위쪽에 착지
-            self.velocity_y = min(self.velocity_y, 0)  # 위로 튕길 때는 속도를 0으로 설정
-            self.velocity_y += self.gravity  # 중력 영향을 받게 함
+            closest_block = None
+            min_distance = float('inf')
 
-            self.x -= self.velocity_x  
-            self.bounce_count -= 1
+            for block in server.block:
+                if self.y >= block.yPos + block.height // 2 + 10:  # 46 대신 조정
+                    distance = abs(self.x - block.xPos)
+                    if distance < min_distance:
+                        min_distance = distance
+                        closest_block = block
+
+            if closest_block:
+                self.y = closest_block.yPos + closest_block.height // 2 + 40 # 블록 바로 위로 착지
+                self.velocity_y = max(self.velocity_y, 0)
+                self.velocity_y += self.gravity
+                self.x -= self.velocity_x
+                self.bounce_count -= 1
+
 
     def bomb(self, vel):
         if self.bombCount > 0:
@@ -196,6 +211,9 @@ class Character:
             game_world.add_collision_pair('bomb:npc_snake', bomb, None)
             game_world.add_collision_pair('block:bomb', None, bomb)
             game_world.add_collision_pair('bomb:box', bomb, None)
+            for npc in server.npcs:
+                game_world.add_collision_pair('bomb:npc_', bomb, npc)
+
             self.bombCount -= 1
         elif self.bombCount == 0:
             pass
@@ -206,9 +224,15 @@ class Character:
 
         game_world.add_collision_pair('box:whip', None, self.whip)
 
-        for npc_snake in game_world.world[0]:
-            if isinstance(npc_snake, NPC_snake):
-                game_world.add_collision_pair('whip:npc_snake', self.whip, npc_snake)
+       # game_world.add_collision_pair('whip:npc_snake', self.whip, None)
+        #game_world.add_collision_pair('whip:npc_bat', self.whip, None)
+       # game_world.add_collision_pair('whip:npc_snail', self.whip, None)
+        #game_world.add_collision_pair('whip:npc_mini_frog', self.whip, None)
+        for npc in server.npcs:
+            game_world.add_collision_pair('whip:npc_', self.whip, npc)
+
+
+
 
 
 

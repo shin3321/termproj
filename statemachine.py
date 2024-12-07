@@ -121,12 +121,12 @@ class StateMachine:
                 for check_event, next_state in self.transitions[state].items():
                     if check_event(e):
                         state.exit(self.o, e)
-                        #print(f'    exit from{state}')
+                        print(f'    exit from{state}')
                         self.active_states.discard(state)
 
                         self.active_states.add(next_state)
                         next_state.enter(self.o, e)
-                        #print(f'    enter into {next_state}')
+                        print(f'    enter into {next_state}')
                         break
 
 
@@ -134,7 +134,7 @@ class StateMachine:
         for state in start_states:
             self.active_states.add(state)
             state.enter(self.o, ('START', 0))  # 더미 이벤트
-            #print(f'    enter into {state}')
+            print(f'    enter into {state}')
 
     def draw(self, o):
         for state in self.active_states:

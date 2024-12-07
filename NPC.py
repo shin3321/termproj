@@ -10,12 +10,12 @@ from server import hero
 from behavior_tree import BehaviorTree, Action, Sequence, Condition, Selector
 
 PIXEL_PER_METER = (10.0 / 0.3)
-RUN_SPEED_KMPH = 1.0  # Km / Hour
+RUN_SPEED_KMPH = 0.01  # Km / Hour
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-TIME_PER_ACTION = 0.5
+TIME_PER_ACTION = 2.0
 ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 11
 
@@ -27,7 +27,7 @@ class NPC_snake:
         self.i_x = 79
         self.i_y = 87
         self.frame = 0
-        self.speed = 0.5
+        self.speed = 0.2
         self.move_x = 1
         self.action = 3
         self.image = load_image('img/Snakes.png') #85,85
@@ -77,7 +77,9 @@ class NPC_snake:
         #     other.image_alpha = 128
         #     other.bounce_count = 3
         #     other.state_machine.add_event(('CHANGE', 0))
+        #print(f'Collision detected: {group} with {other}')
         if group == 'whip:npc_snake':
+            print(f'attack')
             if self in game_world.world[0]:
                 game_world.remove_obj(self)
 
@@ -85,11 +87,11 @@ class NPC_snake:
 
 class NPC_bat:
     def __init__(self, x, y):
-        self.x, self.y = random.randint(0, 800), random.randint(200, 600)
+        self.x, self.y = x, y
         self.frame = 1
         self.image = load_image('img/bat.png') #85,85
         self.hp = 50
-        self.speed =2  # 박쥐 이동 속도
+        self.speed = 0.5  # 박쥐 이동 속도
         self.state = 'Idle'
         self.build_behavior_tree()
         self.tx, self.ty = 0, 0
@@ -177,13 +179,15 @@ class NPC_bat:
         closest_block = None
         min_distance = float('inf')
 
-        block_center_x = server.block.xPos + (server.block.width / 2)
-        block_center_y = server.block.yPos + (server.block.height / 2)
+        for block in server.block:  # 모든 블록 탐색
+            block_center_x = block.xPos + (block.width / 2)
+            block_center_y = block.yPos + (block.height / 2)
 
-        distance = math.sqrt((self.x - block_center_x) ** 2 + (self.y - block_center_y) ** 2)
-        if distance < min_distance:
-            min_distance = distance
-            closest_block = server.block
+            # 유클리드 거리 계산
+            distance = math.sqrt((self.x - block_center_x) ** 2 + (self.y - block_center_y) ** 2)
+            if distance < min_distance:  # 가장 가까운 블록 갱신
+                min_distance = distance
+                closest_block = block
 
         return closest_block
 
@@ -322,13 +326,14 @@ class NPC_mini_frog:
             self.x += self.direction * self.jump_distance * game_framework.frame_time
 
         # 땅에 닿으면 착지 상태로 전환
-        if self.y <= server.block.yPos + server.block.height/2+ 20:
-            self.y = server.block.yPos + server.block.height/2 + 15
-            self.is_jumping = False
-            self.is_landing = True
-            self.landing_timer = self.landing_time
-            self.vertical_speed = 0.0
-            self.state = "resting"
+        for block in server.block:  # 모든 블록 탐색
+            if self.y <= block.yPos + block.height/2+ 20:
+                self.y = block.yPos + block.height/2 + 15
+                self.is_jumping = False
+                self.is_landing = True
+                self.landing_timer = self.landing_time
+                self.vertical_speed = 0.0
+                self.state = "resting"
 
     def handle_rest(self):
         # 착지 상태 유지
@@ -361,13 +366,14 @@ class NPC_mini_frog:
         self.x += self.direction * self.jump_distance * game_framework.frame_time
 
         # 땅에 닿으면 착지 상태로 전환
-        if self.y <= server.block.yPos+20:
-            self.y = server.block.yPos + server.block.height/2+ 15
-            self.is_jumping = False
-            self.is_landing = True
-            self.landing_timer = self.landing_time
-            self.vertical_speed = 0.0
-            self.state = "resting"
+        for block in server.block:  # 모든 블록 탐색
+            if self.y <= block.yPos+20 and self.x >=  block.xPos - block.width and self.x >= block.xPos + block.width :
+                self.y = block.yPos + block.height/2+ 15
+                self.is_jumping = False
+                self.is_landing = True
+                self.landing_timer = self.landing_time
+                self.vertical_speed = 0.0
+                self.state = "resting"
 
     def draw(self):
         draw_rectangle(*self.get_bb())
@@ -387,13 +393,6 @@ class NPC_mini_frog:
         return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
     def handle_collision(self, group, other):
-        # if group == 'hero:snake':
-        #     other.hp -= 1
-        #     other.is_invincible = True
-        #     other.invincible_time = 2.0
-        #     other.image_alpha = 128
-        #     other.bounce_count = 3
-        #     other.state_machine.add_event(('CHANGE', 0))
         if group == 'whip:npc_snake':
             if self in game_world.world[0]:
                 game_world.remove_obj(self)

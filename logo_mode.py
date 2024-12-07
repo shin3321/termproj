@@ -3,6 +3,9 @@ from pico2d import load_image, delay, clear_canvas, update_canvas, get_events, g
 import game_framework
 import title_mode
 
+screen_width, screen_height = 1200, 800
+center_x = screen_width/2
+center_y = screen_height/2
 
 def init():
     global image
@@ -25,7 +28,8 @@ def update():
 
 def draw():
     clear_canvas()
-    image.clip_draw(74, 25, 135, 24, 400, 300, 270, 48)#135, 24, 74, 27
+    image.clip_draw(0, 0, 5, 5, center_x, center_y, screen_width, screen_height)
+    image.clip_draw(74, 25, 135, 24, center_x, center_y, 540, 96)#135, 24, 74, 27
     update_canvas()
 
 def handle_events():

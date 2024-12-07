@@ -2,7 +2,6 @@ background = None
 
 hero = None
 block = None
-blocks = None
 npcs = None
 boxs = None
 
