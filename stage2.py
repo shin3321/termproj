@@ -1,5 +1,7 @@
 from pico2d import  *
 
+import finale
+import game_framework
 import game_mode
 import game_world
 import server
@@ -68,7 +70,7 @@ class Ladder: # 64, 64
                                 self.x, self.y+75, 75, 75)
         self.image.clip_draw(img_size* 4, self.size * 18, img_size, img_size,
                                 self.x, self.y, 75, 75)
-        if self.y == 205 and self.x == 900:
+        if self.y == 205 and self.x == 1050:
             self.image.clip_draw(img_size * 4, img_size * 11, img_size, img_size,
                                  self.x, self.y + 75, 75, 75)
             self.image.clip_draw(img_size * 4, self.size * 18, img_size, img_size,
@@ -81,7 +83,7 @@ class Ladder: # 64, 64
         pass
 
     def get_bb(self):
-        if self.y == 205 and self.x == 900:
+        if self.y == 205 and self.x == 1050:
             return (self.x - 30, self.y - 115, self.x+30, self.y +115)
         else:
             return (self.x - 30, self.y - 40, self.x+30, self.y +115)
@@ -123,20 +125,28 @@ class Box:
         pass
 
 class Door:
+    door_sound = None
     def __init__(self, x, y):
-        print('door')
+        print('door2')
         self.x = x
         self.y = y
         self.image = load_image('img/Jungle_Tiles.png')
         self.width = self.image.w
         self.height = self.image.h
+        if not Door.door_sound:
+            Door.door_sound = load_wav('sound/vanish.wav')
+            Door.door_sound.set_volume(32)
 
     def update(self):
         pass
 
     def draw(self):
-        self.image.draw(0, 0, 360, 320, self.x, self.y)
+        self.image.clip_draw(0, 0, 360, 320, self.x, self.y)
+
+    def get_bb(self):
+        return self.x -10, self.y - 10, self.x + 10, self.y + 10
 
     def handle_collision(self, group, other):
-        if group == 'hero:door' and isinstance(other, server.hero):
-            game_mode.next_stage(2, other)
+        if group == 'hero:door':
+            Door.door_sound.play()
+            game_framework.change_mode(finale)

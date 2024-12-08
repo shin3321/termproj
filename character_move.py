@@ -107,9 +107,10 @@ class Jump:
         hero.start_y = hero.y
         if space_down(e):
             pass
-        if d_down(e):
+
+        if space_down(e) and d_down(e):
             hero.dir = 1
-        if a_down(e):
+        if space_down(e) and a_down(e):
             hero.dir = -1
 
 
@@ -122,21 +123,17 @@ class Jump:
         pass
     @staticmethod
     def do(hero):
-        # 이동 및 점프 처리
         if hero.is_jumping:
             hero.x += hero.dir * RUN_SPEED_PPS * game_framework.frame_time
 
-        # 점프 처리
         if hero.is_jumping:
             hero.y += hero.jump_velocity * 0.5
             hero.jump_velocity -= hero.gravity * game_framework.frame_time  # 중력 적용
 
-            # 최대 점프 높이에 도달했을 때 속도 반전
             if hero.y >= hero.start_y + MAX_JUMP_HEIGHT:
                 hero.jump_velocity = -abs(hero.jump_velocity) # 중력 적용
- # 하강으로 전환
 
-        # 착지 처리
+
         closest_block_height = float('inf')
         on_ground = False
 
@@ -168,22 +165,6 @@ class Jump:
         if hero.dir == -1:
             hero.image.clip_composite_draw(img_size * int(hero.frame),img_size*15,
                              img_size, img_size, 0,'h', hero.x, hero.y, 100, 100)
-
-
-class Sleep:
-    @staticmethod
-    def enter(hero, e):
-        pass
-    @staticmethod
-    def exit(hero, e):
-        pass
-    @staticmethod
-    def do(hero):
-        hero.frame = (hero.frame + 1)
-    @staticmethod
-    def draw(hero):
-        hero.image.clip_draw(1130, img_size*15,
-                             img_size, img_size, hero.x, hero.y, 100, 100)
 
 
 class Sit:
@@ -228,7 +209,6 @@ class Attack:   #(4, 5, 8frame)
 
     @staticmethod
     def exit(hero, e):
-        hero.whip.clear()
         pass
 
     @staticmethod
@@ -259,34 +239,50 @@ class Attacked:
         hero.frame = 0
         hero.start_time = get_time()
         hero.is_moving = False
-        hero.bounce_back()
+        #hero.bounce_back()
         hero.x -= hero.velocity_x
 
         pass
 
     @staticmethod
     def exit(hero, e):
-
+        hero.is_invincible = False
         pass
 
     @staticmethod
     def do(hero):
         current_time = get_time()
+
+        closest_block_height = float('inf')
+        on_ground = False
+
+        for block in server.block:
+            if hero.y <= block.yPos + block.height and hero.y + 45 > block.yPos:
+                closest_block_height = min(closest_block_height, block.yPos + block.height)
+                on_ground = True
+
+        if on_ground and hero.y > closest_block_height:
+            hero.y = closest_block_height  # 착지 위치 고정
+            hero.velocity_y = max(hero.velocity_y, 0)
+            hero.velocity_y += hero.gravity
+
+        # 무적 상태 타이머 처리
         if current_time - hero.frame_update_time >= 0.10:
             hero.frame_update_time = current_time
-            hero.frame = hero.frame % 4 +1
+            hero.frame = hero.frame % 4 + 1
 
             if get_time() - hero.start_time > 1.2:
                 hero.frame = 4
 
         if hero.is_invincible:
             hero.image_alpha = 128 if int(get_time() * 10) % 2 == 0 else 255
-
+        else:
+            hero.image_alpha = 255
 
         hero.invincible_time -= pico2d.get_time() - hero.last_time
         if hero.invincible_time <= 0:
-            hero.is_invincible = False
             hero.image_alpha = 255
+            hero.is_invincible = False
             hero.state_machine.add_event(('TIME_OUT', 0))
 
         hero.last_time = pico2d.get_time()

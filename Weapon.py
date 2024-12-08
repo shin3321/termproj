@@ -4,6 +4,7 @@ from pico2d import *
 from sdl2.examples.gfxdrawing import draw_circles
 
 import game_world
+import server
 
 img_size = 128
 
@@ -35,7 +36,9 @@ class Whip:
 
         if get_time() - self.start_time > 1.1:
             Whip.whip_sound.play()
+            server.hero.whip = None
             game_world.remove_obj(self)
+
 
 
     def draw(self):
@@ -72,10 +75,12 @@ class Whip:
         pass
 
     def handle_collision(self, group, other):
-        if group.startswith('whip:npc_'):
-            #print('Whip attack')
-            if other in game_world.world[0]:
-                game_world.remove_obj(other)
+        # if group.startswith('whip:npc_'):
+        #     #print('Whip attack')
+        #     if other in game_world.world[0]:
+        #         game_world.remove_obj(other)
+        pass
+
 
 
 

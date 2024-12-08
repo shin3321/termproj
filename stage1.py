@@ -43,7 +43,7 @@ class Block:
             return 0, 0, world_width + 50, self.height - 15
         else:
             return (self.xPos - self.width,
-                    self.yPos - self.height//2,
+                    self.yPos - self.height//10,
                     self.xPos + self.width ,
                     self.yPos + self.height//2 )
 
@@ -114,7 +114,6 @@ class Box:
 class Door:
     door_sound = None
     def __init__(self, x, y):
-        print('create door')
         self.x = x
         self.y = y
         self.image = load_image('img/Dwelling_Tiles.png')  # 문 이미지 파일 경로 (이미지 추가 필요)

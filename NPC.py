@@ -70,11 +70,10 @@ class NPC_snake:
         pass
 
     def handle_collision(self, group, other):
-        # if group == 'whip:npc_snake':
-        #     print(f'attack')
-        #     if self in game_world.world[0]:
-        #         game_world.remove_obj(self)
-
+        if group == 'whip:npc_npc_snake':
+            print(f'attack')
+            if self in game_world.world[0]:
+                game_world.remove_obj(self)
         pass
 
 class NPC_bat:
@@ -122,7 +121,7 @@ class NPC_bat:
         pass
 
     def handle_collision(self, group, other):
-        if group == 'whip:npc_snake':
+        if group == 'whip:npc_npc_bat':
             if self in game_world.world[0]:
                 game_world.remove_obj(self)
         pass
@@ -263,9 +262,9 @@ class NPC_snail:
         pass
 
     def handle_collision(self, group, other):
-        # if group == 'whip:npc_snail':
-        #     if self in game_world.world[0]:
-        #         game_world.remove_obj(self)
+        if group == 'whip:npc_npc_snail':
+            if self in game_world.world[0]:
+                game_world.remove_obj(self)
 
         pass
 
@@ -388,7 +387,7 @@ class NPC_mini_frog:
         return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
     def handle_collision(self, group, other):
-        if group == 'whip:npc_mini_frog':
+        if group == 'whip:npc_npc_mini_frog':
             if self in game_world.world[0]:
                 game_world.remove_obj(self)
 

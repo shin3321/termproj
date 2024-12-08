@@ -16,9 +16,8 @@ import random
 
 from character_move import Idle
 from game_world import remove_obj
-from stage1 import Block, Ladder, Box, Door
+from stage1 import Block, Ladder, Box
 from stage2 import Block, Ladder, Box
-
 
 center_x = screen_width/2
 center_y = screen_height/2
@@ -45,7 +44,7 @@ stage_config = {
         "module": "stage2",
         "background": "Background2",
         "npcs": [NPC_snail, NPC_mini_frog],
-        "npc_positions":  [(300, 250), (800, 350), (600, 350)],
+        "npc_positions":  [(300, 250), (850, 350), (600, 350)],
     }
 }
 
@@ -91,7 +90,7 @@ def init(stage_number=None):
 
     block_positions = [
         (world_width, 60, world_width // 2, 10, True),  # is_background 추가
-        (100, 50, 1000, 300, False),
+        (130, 50, 1050, 300, False),
         (100, 50, 300, 200, False),
         (100, 50, 650, 300, False)
     ]
@@ -102,7 +101,8 @@ def init(stage_number=None):
         game_world.add_obj(block, 0)
         game_world.add_collision_pair('block:hero', block, None)
         game_world.add_collision_pair('block:bomb', block, None)
-    block_positions = [
+
+    box_positions = [
         (1050, 350),
         (650, 350),
         (350, 250),
@@ -110,13 +110,13 @@ def init(stage_number=None):
         (700, 65)
     ]
 
-    server.boxs = [Box(x, y) for x, y in random.sample(block_positions, k=5)]
+    server.boxs = [Box(x, y) for x, y in random.sample(box_positions, k=5)]
     for box in server.boxs:
         game_world.add_obj(box, 0)
         game_world.add_collision_pair('box:whip', box, None)
         game_world.add_collision_pair('bomb:box', None, box)
 
-    ladder_positions = [(900, 205), (200, 105), (550, 205)]
+    ladder_positions = [(1050, 205), (200, 105), (550, 205)]
     server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
         game_world.add_obj(ladder, 0)
@@ -184,7 +184,8 @@ def check_npc_clear(stage):
         config = stage_config[stage]
         stage_module = importlib.import_module(config["module"])
         DoorClass = getattr(stage_module, "Door")
-        door = Door(900, 140)  # 문 위치 설정
+        print(f'{stage_module}')
+        door = DoorClass(900, 140)  # 문 위치 설정
 
         server.door = door
         game_world.add_obj(door, 0)  # 게임 월드에 문 추가
@@ -193,6 +194,7 @@ def check_npc_clear(stage):
 def reset():
     finish()
     init(stage_number=1)
+    pass
 
 def finish():
     game_world.clear()
