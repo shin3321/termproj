@@ -50,51 +50,6 @@ class Block:
     def handle_collision(self, group, other):
         pass
 
-
-class Thorn:
-    def __init__(self, w, h, xPos, yPos):
-        self.xPos = xPos
-        self.yPos = yPos
-        self.width = w
-        self.height = h
-        self.image = load_image('img/1Tileset.png')
-
-    def update(self):
-        pass
-
-
-    def draw(self):
-        pass
-
-
-    def get_bb(self):
-        return 0, 0,  self.xPos + 50,  self.yPos+50
-
-    def handle_collision(self, group, other):
-        pass
-
-
-
-class Arrow:
-    def __init__(self):
-        self.x, self.y = 400, 100
-        self.gravity = 0.5
-
-        self.image = load_image('img/items.png')
-
-    def update(self):
-        if server.hero.y == self.y:
-            self.y -= self.gravity
-            self.x += 1
-        pass
-
-    def draw(self):
-        self.image.clip_draw(img_size ,img_size*14, img_size, img_size, self.x, self.y, 50, 50)
-        pass
-
-    def handle_collision(self, group, other):
-        pass
-
 class Ladder: # 64, 64
     def __init__(self, x, y):
         self.x = x
@@ -157,6 +112,7 @@ class Box:
         pass
 
 class Door:
+    door_sound = None
     def __init__(self, x, y):
         print('create door')
         self.x = x
@@ -164,6 +120,9 @@ class Door:
         self.image = load_image('img/Dwelling_Tiles.png')  # 문 이미지 파일 경로 (이미지 추가 필요)
         self.width = self.image.w
         self.height = self.image.h
+        if not Door.door_sound:
+            Door.door_sound = load_wav('sound/vanish.wav')
+            Door.door_sound.set_volume(32)
 
     def update(self):
         pass
@@ -177,8 +136,8 @@ class Door:
 
     def handle_collision(self, group, other):
         if group == 'hero:door':
+            Door.door_sound.play()
             remove_obj(self)
             #game_mode.finish()
-            print('door')
             game_mode.next_stage(1, other)
 

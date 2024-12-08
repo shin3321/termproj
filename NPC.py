@@ -70,18 +70,10 @@ class NPC_snake:
         pass
 
     def handle_collision(self, group, other):
-        # if group == 'hero:snake':
-        #     other.hp -= 1
-        #     other.is_invincible = True
-        #     other.invincible_time = 2.0
-        #     other.image_alpha = 128
-        #     other.bounce_count = 3
-        #     other.state_machine.add_event(('CHANGE', 0))
-        #print(f'Collision detected: {group} with {other}')
-        if group == 'whip:npc_snake':
-            print(f'attack')
-            if self in game_world.world[0]:
-                game_world.remove_obj(self)
+        # if group == 'whip:npc_snake':
+        #     print(f'attack')
+        #     if self in game_world.world[0]:
+        #         game_world.remove_obj(self)
 
         pass
 
@@ -271,6 +263,9 @@ class NPC_snail:
         pass
 
     def handle_collision(self, group, other):
+        # if group == 'whip:npc_snail':
+        #     if self in game_world.world[0]:
+        #         game_world.remove_obj(self)
 
         pass
 
@@ -346,12 +341,10 @@ class NPC_mini_frog:
             elif self.move_phase < 4:
                 self.state = "moving_left"
             else:
-                print(f'{self.move_phase}')
                 self.move_phase = -1  # 초기화
                 self.direction *= -1  # 방향 전환
                 self.state = "jumping"
             self.move_phase += 1
-            print(f'{self.move_phase}')
 
     def handle_move(self, direction):
         if not self.is_jumping:
@@ -387,7 +380,6 @@ class NPC_mini_frog:
         elif self.is_jumping and self.direction == -1:
             self.image.clip_composite_draw(4 * self.i_x, 0, 81, self.i_y, 0, 'h', self.x,  self.y, 80, 80)
         else:
-            print('landing')
             self.image.clip_composite_draw(2*self.i_x, 0, 81, self.i_y, 0, 'h',self.x, self.y, 80, 80)
 
 
@@ -396,7 +388,7 @@ class NPC_mini_frog:
         return self.x - 20, self.y - 20, self.x + 20, self.y + 20
 
     def handle_collision(self, group, other):
-        if group == 'whip:npc_snake':
+        if group == 'whip:npc_mini_frog':
             if self in game_world.world[0]:
                 game_world.remove_obj(self)
 

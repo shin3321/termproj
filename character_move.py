@@ -12,10 +12,14 @@ RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
 RUN_SPEED_PPS = (RUN_SPEED_MPS * PIXEL_PER_METER)
 
-UP_SPEED_KMPH = 5
+UP_SPEED_KMPH = 1
 UP_SPEED_MPM = (UP_SPEED_KMPH * 1000.0 / 60.0)
 UP_SPEED_MPS = (UP_SPEED_MPM / 60.0)
 UP_SPEED_PPS =  UP_SPEED_MPS * PIXEL_PER_METER
+
+TIME_PER_ACTION = 2.0
+ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
+FRAMES_PER_ACTION = 11
 
 MAX_JUMP_HEIGHT = 100
 
@@ -42,7 +46,7 @@ class Idle:
     @staticmethod
     def exit(hero, e):
         if x_down(e):
-            hero.bomb(2)
+            hero.bomb(1.5)
         pass
     @staticmethod
     def do(hero):
@@ -77,7 +81,7 @@ class Walk:
     @staticmethod
     def exit(hero, e):
         if x_down(e):
-            hero.bomb(3.5)
+            hero.bomb(1.5)
         pass
     @staticmethod
     def do(hero):
@@ -112,7 +116,7 @@ class Jump:
     @staticmethod
     def exit(hero, e):
         if x_down(e):
-            hero.bomb(3.5)
+            hero.bomb(2)
         hero.is_jumping = False
 
         pass
@@ -124,7 +128,7 @@ class Jump:
 
         # 점프 처리
         if hero.is_jumping:
-            hero.y += hero.jump_velocity
+            hero.y += hero.jump_velocity * 0.5
             hero.jump_velocity -= hero.gravity * game_framework.frame_time  # 중력 적용
 
             # 최대 점프 높이에 도달했을 때 속도 반전
@@ -255,6 +259,9 @@ class Attacked:
         hero.frame = 0
         hero.start_time = get_time()
         hero.is_moving = False
+        hero.bounce_back()
+        hero.x -= hero.velocity_x
+
         pass
 
     @staticmethod
@@ -274,7 +281,7 @@ class Attacked:
 
         if hero.is_invincible:
             hero.image_alpha = 128 if int(get_time() * 10) % 2 == 0 else 255
-            hero.bounce_back()
+
 
         hero.invincible_time -= pico2d.get_time() - hero.last_time
         if hero.invincible_time <= 0:
@@ -321,8 +328,8 @@ class Ladder:
     @staticmethod
     def do(hero):
         if hero.up != 0:  # W 또는 S 키 입력이 있을 때만
-            hero.y += hero.up * 5
-            hero.frame += hero.up * UP_SPEED_PPS * game_framework.frame_time
+            hero.y += hero.up * 0.5
+            hero.frame = (hero.frame + FRAMES_PER_ACTION * game_framework.frame_time) % 6
         else:
             hero.frame = 0
 

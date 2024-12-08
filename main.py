@@ -1,5 +1,6 @@
 import pico2d
 
+import finale
 import game_mode
 import game_framework
 from pico2d import *

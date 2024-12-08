@@ -68,13 +68,23 @@ class Ladder: # 64, 64
                                 self.x, self.y+75, 75, 75)
         self.image.clip_draw(img_size* 4, self.size * 18, img_size, img_size,
                                 self.x, self.y, 75, 75)
+        if self.y == 205 and self.x == 900:
+            self.image.clip_draw(img_size * 4, img_size * 11, img_size, img_size,
+                                 self.x, self.y + 75, 75, 75)
+            self.image.clip_draw(img_size * 4, self.size * 18, img_size, img_size,
+                                 self.x, self.y-75, 75, 75)
+            self.image.clip_draw(img_size * 4, img_size* 10, img_size, img_size,
+                                 self.x, self.y, 75, 75)
         pass
 
     def handle_collision(self, group, other):
         pass
 
     def get_bb(self):
-        return (self.x - 30, self.y - 40, self.x+30, self.y +115)
+        if self.y == 205 and self.x == 900:
+            return (self.x - 30, self.y - 115, self.x+30, self.y +115)
+        else:
+            return (self.x - 30, self.y - 40, self.x+30, self.y +115)
         pass
 
 class Box:
@@ -115,7 +125,7 @@ class Box:
 class Door:
     def __init__(self, x, y):
         print('door')
-        self.x = 500
+        self.x = x
         self.y = y
         self.image = load_image('img/Jungle_Tiles.png')
         self.width = self.image.w

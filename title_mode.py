@@ -10,6 +10,7 @@ center_y = screen_height/2
 def init():
     global image
     image = load_image('img/Miscellaneous.png')
+
 def finish():
     global image
     del image

@@ -79,5 +79,12 @@ def process_delete_queue():
             if obj in world[0]:
                 remove_obj(obj)
                 delete_queue.remove((obj, delete_time))
+
 def clear():
+    for obj in world[0]:
+        remove_obj(obj)
+    for obj in world[1]:
+        remove_obj(obj)
+
+
     pass

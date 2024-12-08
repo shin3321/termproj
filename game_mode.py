@@ -4,6 +4,7 @@ from pico2d import *
 import random
 import importlib
 
+import finale
 import game_framework
 import game_world
 import title_mode
@@ -15,7 +16,7 @@ import random
 
 from character_move import Idle
 from game_world import remove_obj
-from stage1 import Block, Arrow, Ladder, Box, Door
+from stage1 import Block, Ladder, Box, Door
 from stage2 import Block, Ladder, Box
 
 
@@ -61,7 +62,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-            #game_framework.change_mode(title_mode)
+            game_framework.change_mode(title_mode)
             pass
         elif event.type == SDL_KEYDOWN and event.key == SDLK_p:  # P키 입력 처리
             remove_all_npcs()  # NPC 모두 제거
@@ -94,20 +95,28 @@ def init(stage_number=None):
         (100, 50, 300, 200, False),
         (100, 50, 650, 300, False)
     ]
+
     server.block = [Block(width, height, x, y, is_bg) for width, height, x, y, is_bg in block_positions]
 
     for block in server.block:
         game_world.add_obj(block, 0)
         game_world.add_collision_pair('block:hero', block, None)
         game_world.add_collision_pair('block:bomb', block, None)
+    block_positions = [
+        (1050, 350),
+        (650, 350),
+        (350, 250),
+        (500, 65),
+        (700, 65)
+    ]
 
-    server.boxs = [Box(random.randint(0, 800), random.randint(60, 100)) for _ in range(5)]
+    server.boxs = [Box(x, y) for x, y in random.sample(block_positions, k=5)]
     for box in server.boxs:
         game_world.add_obj(box, 0)
         game_world.add_collision_pair('box:whip', box, None)
         game_world.add_collision_pair('bomb:box', None, box)
 
-    ladder_positions = [(900, 105), (200, 105), (550, 205)]
+    ladder_positions = [(900, 205), (200, 105), (550, 205)]
     server.ladders = [Ladder(x, y) for x, y in ladder_positions]
     for ladder in server.ladders:
         game_world.add_obj(ladder, 0)
@@ -119,9 +128,8 @@ def init(stage_number=None):
     game_world.add_collision_pair('ladder:hero', None, server.hero)
     game_world.add_collision_pair('item:hero', None, server.hero)
 
-    arrow = Arrow()
-    game_world.add_obj(arrow, 1)
     init_npcs(stage_number)
+
 
 def init_npcs(stage_number):
     print(f'{stage_number}')
@@ -141,8 +149,6 @@ def init_npcs(stage_number):
         game_world.add_collision_pair(f'whip:npc_{npc_class.__name__.lower()}', None, npc)
         game_world.add_collision_pair(f'bomb:npc_{npc_class.__name__.lower()}', None, npc)
 
-
-
 hero_state = {}
 
 def save_hero_state(hero):
@@ -156,27 +162,37 @@ def load_hero_state(hero):
 
 def next_stage(current_stage, hero):
     save_hero_state(hero)
-    server.stage_number += 1
-    remove_obj(server.hero)
+    server.stage_number = current_stage + 1
+    game_world.clear()
+    server.hero = None
+    server.block = None
+    server.npcs = None
+    server.boxs = None
+    server.ladders = None
+    server.door = None
 
     if server.stage_number in stage_config:
         new_stage_module = importlib.import_module(stage_config[server.stage_number]["module"])
         init(server.stage_number)
         load_hero_state(hero)  # 영웅 상태 로드
-    #else:
-        #game_framework.change_mode(title_mode)
+    else:
+        game_framework.change_mode(finale)
+        return
 
 def check_npc_clear(stage):
     if not server.npcs and server.door is None:
         config = stage_config[stage]
         stage_module = importlib.import_module(config["module"])
         DoorClass = getattr(stage_module, "Door")
-        door = Door(400, 100)  # 문 위치 설정
+        door = Door(900, 140)  # 문 위치 설정
 
         server.door = door
         game_world.add_obj(door, 0)  # 게임 월드에 문 추가
         game_world.add_collision_pair('hero:door', server.hero, door)
 
+def reset():
+    finish()
+    init(stage_number=1)
 
 def finish():
     game_world.clear()

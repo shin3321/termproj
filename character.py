@@ -21,6 +21,7 @@ ACTION_PER_TIME = 1.0 / TIME_PER_ACTION
 FRAMES_PER_ACTION = 8
 
 class Character:
+    game_mode_sound = None
     def __init__(self):
         self.frame = 0
         self.action = 1
@@ -28,8 +29,8 @@ class Character:
         self.face_dir = 1
         self.dir = 1
         self.frame_update_time = 0
-        self.jump_velocity = 5
-        self.jump_height = 20
+        self.jump_velocity = 0.1
+        self.jump_height = 15
         self.gravity = -0.5
         self.bombCount = 5
         self.velocity_x, self.velocity_y = 30, 30
@@ -38,7 +39,7 @@ class Character:
         self.state_machine = StateMachine(self)
         self.state_machine.start([Idle])
         self.x = server.background.w // 2
-        self.y = 80
+        self.y = 88
         self.vy = 0
         self.invincible_time = 0
         self.image_alpha = 255
@@ -50,6 +51,11 @@ class Character:
         self.is_moving = False
         self.on_ground = True
         self.up=0
+        if not Character.game_mode_sound:
+            Character.game_mode_sound=  load_wav('sound/background.wav')
+            Character.game_mode_sound.set_volume(32)
+        Character.game_mode_sound.repeat_play()
+
         self.state_machine.set_transitions(
             {
                 Sleep: {space_down : Idle,
@@ -149,13 +155,14 @@ class Character:
                 self.bounce_count = 5
                 self.state_machine.add_event(('CHANGE', 0))
             elif self.hp < 1:
-                #self.hp = 5
-                #self.bombCount = 0
-                server.stage_number = 1
-                game_world.remove_obj(server.hero)
-                #self.state_machine.start([Idle])
-                self.state_machine.add_event(('START', 0))
-                game_mode.init(server.stage_number)
+                game_mode.reset()
+                # #self.hp = 5
+                # #self.bombCount = 0
+                # game_mode.finish()
+                # #self.state_machine.start([Idle])
+                # server.stage_number = 1
+                # self.state_machine.add_event(('START', 0))
+                # game_mode.init(server.stage_number)
 
 
         if group == 'block:hero':
@@ -188,19 +195,20 @@ class Character:
         if self.bounce_count > 0:
             closest_block = None
             min_distance = float('inf')
+            self.x -= self.velocity_x
 
             for block in server.block:
-                if self.y >= block.yPos + block.height // 2 + 10:  # 46 대신 조정
+                if self.y >= block.yPos + block.height // 2 + 10:
                     distance = abs(self.x - block.xPos)
                     if distance < min_distance:
                         min_distance = distance
                         closest_block = block
 
             if closest_block:
-                self.y = closest_block.yPos + closest_block.height // 2 + 40 # 블록 바로 위로 착지
+                self.x -= self.velocity_x
+                self.y = closest_block.yPos + closest_block.height // 2 + 40
                 self.velocity_y = max(self.velocity_y, 0)
                 self.velocity_y += self.gravity
-                self.x -= self.velocity_x
                 self.bounce_count -= 1
 
 
@@ -209,9 +217,11 @@ class Character:
             bomb = Bomb(self.x, self.y, self.face_dir * vel)
             game_world.add_obj(bomb, 1)
             game_world.add_collision_pair('bomb:npc_snake', bomb, None)
+
             game_world.add_collision_pair('block:bomb', None, bomb)
             game_world.add_collision_pair('bomb:box', bomb, None)
             for npc in server.npcs:
+                #print(f'{npc}')
                 game_world.add_collision_pair('bomb:npc_', bomb, npc)
 
             self.bombCount -= 1
@@ -224,12 +234,16 @@ class Character:
 
         game_world.add_collision_pair('box:whip', None, self.whip)
 
-       # game_world.add_collision_pair('whip:npc_snake', self.whip, None)
-        #game_world.add_collision_pair('whip:npc_bat', self.whip, None)
-       # game_world.add_collision_pair('whip:npc_snail', self.whip, None)
-        #game_world.add_collision_pair('whip:npc_mini_frog', self.whip, None)
+        # game_world.add_collision_pair('whip:npc_snake', self.whip, None)
+        # game_world.add_collision_pair('whip:npc_bat', self.whip, None)
+        # game_world.add_collision_pair('whip:npc_snail', self.whip, None)
+        # game_world.add_collision_pair('whip:npc_mini_frog', self.whip, None)
         for npc in server.npcs:
+            print(f'{npc}')
             game_world.add_collision_pair('whip:npc_', self.whip, npc)
+        # for npc in server.npcs:
+        #     game_world.add_collision_pair('whip:npc_', self.whip, npc)
+
 
 
 
