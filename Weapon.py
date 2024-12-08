@@ -70,7 +70,7 @@ class Whip:
             return self.x - 20, self.y - 20, self.x+70, self.y+20
         if self.frame >= 10 and self.frame <= 13 and self.face_dir == -1 :
             return self.x, self.y , self.x, self.y
-        if self.frame >=14and self.face_dir == -1:
+        if self.frame >=14 and self.face_dir == -1:
             return self.x - 70, self.y - 20, self.x-20, self.y+20
         pass
 
